@@ -1,13 +1,22 @@
-import { IconContext } from "@phosphor-icons/react";
 import { gsap } from "gsap";
 import React, { useEffect } from "react";
+import { IconMapper } from "@/components/icon-mapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSub,
+	ContextMenuSubContent,
+	ContextMenuSubTrigger,
+	ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getResourceDetail } from "@/enums/Resources";
+import { Resources } from "@/enums/Resources";
 import { resourceStore } from "@/store/resourceStore";
 
 function Inventory() {
@@ -54,14 +63,51 @@ function Inventory() {
 						if (resource.value <= 0) return null;
 
 						return (
-							<Tooltip key={getResourceDetail(resource.label)?.name}>
+							<Tooltip key={resource.label}>
 								<TooltipTrigger>
-									<div className="w-32 h-32 flex flex-col justify-center items-center bg-gray-100 rounded-lg">
-										<IconContext.Provider value={{ size: 48 }}>
-											{getResourceDetail(resource.label)?.icon}
-										</IconContext.Provider>
-										<p className="font-bold mt-2">{resource.value}</p>
-									</div>
+									<ContextMenu>
+										<ContextMenuTrigger
+											disabled={resource.label === Resources.Coins}
+										>
+											<div className="w-32 h-32 flex flex-col justify-center items-center bg-gray-100 rounded-lg">
+												<IconMapper name={resource.label} />
+												<p className="font-bold mt-2">{resource.value}</p>
+											</div>
+										</ContextMenuTrigger>
+										<ContextMenuContent>
+											<ContextMenuSub>
+												<ContextMenuSubTrigger>Sell</ContextMenuSubTrigger>
+												<ContextMenuSubContent>
+													{[1, 10, 100, 1000, 10000, 100000, 1000000].map(
+														(amount) =>
+															resource.value >= amount ? (
+																<ContextMenuItem
+																	key={amount}
+																	onClick={() =>
+																		resources.sellResource(
+																			resource.label,
+																			amount,
+																		)
+																	}
+																>
+																	{`Sell ${amount.toLocaleString()}`}
+																</ContextMenuItem>
+															) : null,
+													)}
+													<ContextMenuItem
+														onClick={() =>
+															resources.sellResource(
+																resource.label,
+																resource.value,
+															)
+														}
+													>
+														Sell All
+													</ContextMenuItem>
+												</ContextMenuSubContent>
+											</ContextMenuSub>
+										</ContextMenuContent>
+									</ContextMenu>
 								</TooltipTrigger>
 								<TooltipContent>
 									<p>{resource.label}</p>

@@ -6,13 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { gameStore } from "@/store/gameStore";
-import { resourceStore } from "@/store/resourceStore";
 
 export default function PlayerNode() {
 	const playerName = gameStore((state) => state.playerName);
 	const changePlayerName = gameStore((state) => state.setPlayerName);
-
-	const sellResources = resourceStore((state) => state.sellResources);
 
 	return (
 		<Tabs
@@ -27,9 +24,6 @@ export default function PlayerNode() {
 				<div className="px-4 py-2">
 					<div className="flex flex-col items-center">
 						<p className="font-bold text-2xl mb-4">{playerName}</p>
-						<div className="flex gap-4 mt-6">
-							<Button onClick={() => sellResources()}>Sell Resources</Button>
-						</div>
 					</div>
 				</div>
 			</TabsContent>
@@ -56,12 +50,7 @@ export default function PlayerNode() {
 				</div>
 			</TabsContent>
 
-			<Handle
-				type="source"
-				position={Position.Right}
-				id="player-source"
-				className="bg-blue-500"
-			/>
+			<Handle type="source" position={Position.Right} id="player-source" />
 		</Tabs>
 	);
 }

@@ -1,11 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { resourceDetails } from "@/enums/Resources";
+import { Resources, type ResourcesType } from "@/enums/Resources";
 
 type ResourceStore = {
-	coins: number;
-
-	wood: number;
+	Coins: number;
+	Wood: number;
 	woodPerAction: number;
 	woodUpgradeCost: number;
 	woodUpgradeLevel: number;
@@ -14,17 +13,17 @@ type ResourceStore = {
 type ResourceActions = {
 	addWood: () => void;
 	upgradeWoodPerAction: () => void;
-	sellResources: () => void;
+	sellResource: (resource: ResourcesType, amount: number) => void;
 	resetResourceStore: () => void;
 	getAllResources: () => Array<{
+		label: ResourcesType;
 		value: number;
-		label: string;
 	}>;
 };
 
 const defaultValues = {
-	coins: 0,
-	wood: 0,
+	Coins: 0,
+	Wood: 0,
 	woodPerAction: 1,
 	woodUpgradeCost: 10,
 	woodUpgradeLevel: 0,
@@ -37,10 +36,10 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 
 			addWood: () =>
 				set((state) => ({
-					wood: state.wood + state.woodPerAction,
+					Wood: state.Wood + state.woodPerAction,
 				})),
 			upgradeWoodPerAction: () => {
-				if (get().coins < get().woodUpgradeCost) {
+				if (get().Coins < get().woodUpgradeCost) {
 					alert("Not enough coins to upgrade wood production!");
 					return;
 				}
@@ -50,14 +49,18 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 					woodUpgradeCost:
 						state.woodUpgradeCost + 10 * (state.woodUpgradeLevel + 1),
 					woodUpgradeLevel: state.woodUpgradeLevel + 1,
-					coins: state.coins - state.woodUpgradeCost,
+					coins: state.Coins - state.woodUpgradeCost,
 				}));
 			},
 
-			sellResources: () => {
+			sellResource: (resource, amount) => {
+				if (resource === Resources.Coins) {
+					throw new Error("Cannot sell coins directly.");
+				}
+
 				set((state) => ({
-					coins: state.coins + state.wood,
-					wood: 0,
+					[resource]: state[resource] - amount,
+					Coins: state.Coins + state[resource],
 				}));
 			},
 
@@ -68,16 +71,16 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 			},
 
 			getAllResources: () => {
-				const { coins, wood } = get();
+				const { Coins, Wood } = get();
 
 				return [
 					{
-						label: resourceDetails.Coins.name,
-						value: coins,
+						label: Resources.Coins,
+						value: Coins,
 					},
 					{
-						label: resourceDetails.Wood.name,
-						value: wood,
+						label: Resources.Wood,
+						value: Wood,
 					},
 				];
 			},

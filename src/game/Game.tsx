@@ -13,6 +13,7 @@ import { useCallback, useEffect } from "react";
 import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
 import { useFlowStore } from "@/store/flowStore";
 import { resourceStore } from "@/store/resourceStore";
+import Inventory from "./Inventory";
 import PlayerNode from "./nodes/PlayerNode";
 import ResourceNode from "./nodes/ResourceNode";
 
@@ -125,6 +126,7 @@ function Game() {
 			>
 				<Background gap={12} size={1} />
 			</ReactFlow>
+			<Inventory />
 		</ReactFlowProvider>
 	);
 }

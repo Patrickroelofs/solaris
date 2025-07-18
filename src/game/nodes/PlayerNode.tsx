@@ -13,8 +13,6 @@ export default function PlayerNode() {
 	const changePlayerName = gameStore((state) => state.setPlayerName);
 
 	const sellResources = resourceStore((state) => state.sellResources);
-	const coinsResource = resourceStore((state) => state.coins);
-	const woodResource = resourceStore((state) => state.wood);
 
 	return (
 		<Tabs
@@ -29,8 +27,6 @@ export default function PlayerNode() {
 				<div className="px-4 py-2">
 					<div className="flex flex-col items-center">
 						<p className="font-bold text-2xl mb-4">{playerName}</p>
-						<div className="text-sm">🪵 Wood: {woodResource}</div>
-						<div className="text-sm">💰 Coins: {coinsResource}</div>
 						<div className="flex gap-4 mt-6">
 							<Button onClick={() => sellResources()}>Sell Resources</Button>
 						</div>

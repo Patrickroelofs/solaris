@@ -1,9 +1,13 @@
 "use client";
 
 import { Handle, Position } from "reactflow";
+import { gameStore } from "@/store/gameStore";
 import { resourceStore } from "@/store/resourceStore";
 
 export default function PlayerNode() {
+	const playerName = gameStore((state) => state.playerName);
+	const changePlayerName = gameStore((state) => state.setPlayerName);
+
 	const sellResources = resourceStore((state) => state.sellResources);
 	const coinsResource = resourceStore((state) => state.coins);
 	const woodResource = resourceStore((state) => state.wood);
@@ -11,7 +15,14 @@ export default function PlayerNode() {
 	return (
 		<div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-500 min-w-[180px]">
 			<div className="flex flex-col items-center">
-				<div className="text-lg font-bold">Player</div>
+				<input
+					type="text"
+					className="text-lg font-bold"
+					value={playerName}
+					onChange={(e) => {
+						changePlayerName(e.target.value);
+					}}
+				/>
 				<div className="text-sm text-gray-600 mt-2">Resources:</div>
 				<div className="text-sm">🪵 Wood: {woodResource}</div>
 				<div className="text-sm">💰 Coins: {coinsResource}</div>

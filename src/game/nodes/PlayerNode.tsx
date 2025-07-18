@@ -16,8 +16,6 @@ export default function PlayerNode() {
 	const coinsResource = resourceStore((state) => state.coins);
 	const woodResource = resourceStore((state) => state.wood);
 
-	const resetGame = gameStore((state) => state.resetGame);
-
 	return (
 		<Tabs
 			defaultValue="player"
@@ -54,7 +52,7 @@ export default function PlayerNode() {
 					<Label htmlFor="reset-game">Reset Game</Label>
 					<Button
 						id="reset-game"
-						onClick={() => resetGame()}
+						onClick={() => gameStore.getState().resetGame()}
 						variant="destructive"
 					>
 						Destroy Save

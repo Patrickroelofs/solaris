@@ -12,7 +12,6 @@ import "reactflow/dist/style.css";
 import { useCallback, useEffect } from "react";
 import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
 import { useFlowStore } from "@/store/flowStore";
-import { gameStore } from "@/store/gameStore";
 import { resourceStore } from "@/store/resourceStore";
 import PlayerNode from "./nodes/PlayerNode";
 import ResourceNode from "./nodes/ResourceNode";
@@ -31,8 +30,6 @@ function Game() {
 		useFlowStore();
 
 	const addWoodResource = resourceStore((state) => state.addWood);
-	const resetEdges = gameStore((state) => state.resetEdges);
-	const setEdgesStore = gameStore((state) => state.setEdges);
 
 	const onConnect = useCallback(
 		(params: Edge | Connection) => {
@@ -71,10 +68,8 @@ function Game() {
 					}),
 				);
 			}
-
-			setEdgesStore(edges);
 		},
-		[setEdges, setNodes, edges, setEdgesStore],
+		[setEdges, setNodes],
 	);
 
 	const onEdgesDelete = useCallback(
@@ -86,6 +81,7 @@ function Game() {
 			if (isPlayerEdgeDeleted) {
 				setNodes((nds) =>
 					nds.map((node) => {
+						if (node.deletable === false) return node;
 						if (node.id === "player") {
 							return {
 								...node,
@@ -98,17 +94,16 @@ function Game() {
 						return node;
 					}),
 				);
-				resetEdges();
 			}
 		},
-		[setNodes, resetEdges],
+		[setNodes],
 	);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const playerNode = nodes.find((node) => node.id === "player");
 			if (playerNode?.data.choppingWood) {
-				addWoodResource(1);
+				addWoodResource();
 			}
 		}, 1000);
 

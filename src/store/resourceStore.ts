@@ -3,25 +3,57 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 type ResourceStore = {
 	coins: number;
+
 	wood: number;
+	woodPerAction: number;
+	woodUpgradeCost: number;
+	woodUpgradeLevel: number;
 };
 
 type ResourceActions = {
-	addWood: (amount: number) => void;
+	addWood: () => void;
+	upgradeWoodPerAction: () => void;
+
 	sellResources: () => void;
 
-	resetResources: () => void;
+	resetResourceStore: () => void;
 };
+
+const defaultValues = {
+	coins: 0,
+	wood: 0,
+	woodPerAction: 1,
+	woodUpgradeCost: 10,
+	woodUpgradeLevel: 0,
+};
+
 export const resourceStore = create<ResourceStore & ResourceActions>()(
 	persist<ResourceStore & ResourceActions>(
 		(set) => ({
-			coins: 0,
-			wood: 0,
+			...defaultValues,
 
-			addWood: (amount) =>
+			addWood: () =>
 				set((state) => ({
-					wood: state.wood + amount,
+					wood: state.wood + state.woodPerAction,
 				})),
+			upgradeWoodPerAction: () => {
+				if (
+					resourceStore.getState().coins <
+					resourceStore.getState().woodUpgradeCost
+				) {
+					alert("Not enough coins to upgrade wood production!");
+					return;
+				}
+
+				set((state) => ({
+					woodPerAction: state.woodPerAction + 1,
+					woodUpgradeCost:
+						state.woodUpgradeCost + 10 * (state.woodUpgradeLevel + 1),
+					woodUpgradeLevel: state.woodUpgradeLevel + 1,
+					coins: state.coins - state.woodUpgradeCost,
+				}));
+			},
+
 			sellResources: () => {
 				set((state) => ({
 					coins: state.coins + state.wood,
@@ -29,8 +61,10 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 				}));
 			},
 
-			resetResources: () => {
-				set({ coins: 0, wood: 0 });
+			resetResourceStore: () => {
+				set({
+					...defaultValues,
+				});
 			},
 		}),
 		{

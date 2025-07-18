@@ -1,6 +1,6 @@
-import type { Edge } from "reactflow";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { useFlowStore } from "./flowStore";
 import { resourceStore } from "./resourceStore";
 
 type GameStore = {
@@ -11,27 +11,25 @@ type GameActions = {
 	setPlayerName: (name: string) => void;
 
 	resetGame: () => void;
-
-	edges: Edge[];
-	setEdges: (edges: Edge[]) => void;
-	resetEdges: () => void;
+	resetGameStore: () => void;
 };
 
 export const gameStore = create<GameStore & GameActions>()(
 	persist<GameStore & GameActions>(
 		(set) => ({
 			playerName: "Player",
-			edges: [],
 
 			setPlayerName: (name) => set({ playerName: name }),
 
 			resetGame: () => {
-				resourceStore.getState().resetResources();
-				set({ playerName: "Player" });
+				resourceStore.getState().resetResourceStore();
+				useFlowStore.getState().resetFlowStore();
+				gameStore.getState().resetGameStore();
 			},
 
-			setEdges: (edges) => set({ edges }),
-			resetEdges: () => set({ edges: [] }),
+			resetGameStore: () => {
+				set({ playerName: "Player" });
+			},
 		}),
 		{
 			name: "game-store",

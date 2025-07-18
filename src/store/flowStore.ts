@@ -19,26 +19,34 @@ type FlowState = {
 	onEdgesChange: OnEdgesChange;
 	onNodesChange: OnNodesChange;
 	onConnect: OnConnect;
+
+	resetFlowStore: () => void;
 };
+
+const initialEdges: Edge[] = [];
+
+const initialNodes: Node[] = [
+	{
+		id: "player",
+		type: "playerNode",
+		position: { x: 300, y: 150 },
+		data: { wood: 0 },
+		deletable: false,
+	},
+	{
+		id: "wood",
+		type: "resourceNode",
+		position: { x: 750, y: 50 },
+		data: { label: "Wood" },
+		deletable: false,
+	},
+];
 
 export const useFlowStore = create<FlowState>()(
 	persist(
 		(set) => ({
-			edges: [],
-			nodes: [
-				{
-					id: "player",
-					type: "playerNode",
-					position: { x: 300, y: 150 },
-					data: { wood: 0 },
-				},
-				{
-					id: "wood",
-					type: "resourceNode",
-					position: { x: 750, y: 50 },
-					data: { label: "Wood" },
-				},
-			],
+			edges: initialEdges,
+			nodes: initialNodes,
 
 			setEdges: (edges) =>
 				set((state) => ({
@@ -69,6 +77,13 @@ export const useFlowStore = create<FlowState>()(
 				set((state) => ({
 					edges: addEdge(connection, state.edges),
 				})),
+
+			resetFlowStore: () => {
+				set({
+					edges: initialEdges,
+					nodes: initialNodes,
+				});
+			},
 		}),
 		{
 			name: "flow-store",

@@ -1,6 +1,10 @@
 "use client";
 
 import { Handle, Position } from "reactflow";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { gameStore } from "@/store/gameStore";
 import { resourceStore } from "@/store/resourceStore";
 
@@ -15,37 +19,55 @@ export default function PlayerNode() {
 	const resetGame = gameStore((state) => state.resetGame);
 
 	return (
-		<div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-500 min-w-[180px]">
-			<div className="flex flex-col items-center">
-				<input
-					type="text"
-					className="text-lg font-bold"
-					value={playerName}
-					onChange={(e) => {
-						changePlayerName(e.target.value);
-					}}
-				/>
-				<div className="text-sm text-gray-600 mt-2">Resources:</div>
-				<div className="text-sm">🪵 Wood: {woodResource}</div>
-				<div className="text-sm">💰 Coins: {coinsResource}</div>
-				<div className="flex gap-4">
-					<button
-						type="button"
-						onClick={() => resetGame()}
-						className="mt-2 border-2 border-red-300 rounded-md px-2 text-red-300 font-medium opacity-50"
-					>
-						Reset Game
-					</button>
-					<button
-						type="button"
-						onClick={() => sellResources()}
-						className="mt-2 border-2 border-gray-800 rounded-md px-2 text-gray-800 font-medium"
-					>
-						Sell Resources
-					</button>
+		<Tabs
+			defaultValue="player"
+			className="bg-white border-2 border-black rounded-lg p-2"
+		>
+			<TabsList className="w-full">
+				<TabsTrigger value="player">Player</TabsTrigger>
+				<TabsTrigger value="settings">Settings</TabsTrigger>
+			</TabsList>
+			<TabsContent value="player">
+				<div className="px-4 py-2">
+					<div className="flex flex-col items-center">
+						<p className="font-bold text-2xl mb-4">{playerName}</p>
+						<div className="text-sm">🪵 Wood: {woodResource}</div>
+						<div className="text-sm">💰 Coins: {coinsResource}</div>
+						<div className="flex gap-4 mt-6">
+							<Button onClick={() => sellResources()}>Sell Resources</Button>
+						</div>
+					</div>
 				</div>
-			</div>
-			<Handle type="source" position={Position.Right} id="player-source" />
-		</div>
+			</TabsContent>
+			<TabsContent value="settings">
+				<div className="px-4 py-2 flex flex-col gap-2">
+					<Label htmlFor="player-name">Player Name</Label>
+					<Input
+						id="player-name"
+						type="text"
+						value={playerName}
+						onChange={(e) => {
+							changePlayerName(e.target.value);
+						}}
+					/>
+
+					<Label htmlFor="reset-game">Reset Game</Label>
+					<Button
+						id="reset-game"
+						onClick={() => resetGame()}
+						variant="destructive"
+					>
+						Destroy Save
+					</Button>
+				</div>
+			</TabsContent>
+
+			<Handle
+				type="source"
+				position={Position.Right}
+				id="player-source"
+				className="bg-blue-500"
+			/>
+		</Tabs>
 	);
 }

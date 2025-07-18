@@ -15,6 +15,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCallback, useEffect } from "react";
+import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
 import { resourceStore } from "@/store/resourceStore";
 import PlayerNode from "./nodes/PlayerNode";
 import ResourceNode from "./nodes/ResourceNode";
@@ -22,6 +23,10 @@ import ResourceNode from "./nodes/ResourceNode";
 const nodeTypes = {
 	playerNode: PlayerNode,
 	resourceNode: ResourceNode,
+};
+
+const edgeTypes = {
+	animatedSvgEdge: AnimatedSvgEdge,
 };
 
 const initialNodes: Node[] = [
@@ -51,7 +56,12 @@ function Game() {
 		(params: Edge | Connection) => {
 			const newEdge = {
 				...params,
-				animated: true,
+				type: "animatedSvgEdge",
+				data: {
+					duration: 1,
+					shape: params.target,
+					direction: "reverse",
+				},
 				markerEnd: { type: MarkerType.ArrowClosed },
 			};
 
@@ -130,6 +140,7 @@ function Game() {
 				onConnect={onConnect}
 				onEdgesDelete={onEdgesDelete}
 				nodeTypes={nodeTypes}
+				edgeTypes={edgeTypes}
 				fitView
 				attributionPosition="bottom-left"
 			>

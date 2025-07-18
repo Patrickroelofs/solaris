@@ -4,18 +4,15 @@ import ReactFlow, {
 	addEdge,
 	Background,
 	type Connection,
-	Controls,
 	type Edge,
 	MarkerType,
-	MiniMap,
-	type Node,
 	ReactFlowProvider,
-	useEdgesState,
-	useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCallback, useEffect } from "react";
 import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
+import { useFlowStore } from "@/store/flowStore";
+import { gameStore } from "@/store/gameStore";
 import { resourceStore } from "@/store/resourceStore";
 import PlayerNode from "./nodes/PlayerNode";
 import ResourceNode from "./nodes/ResourceNode";
@@ -29,28 +26,13 @@ const edgeTypes = {
 	animatedSvgEdge: AnimatedSvgEdge,
 };
 
-const initialNodes: Node[] = [
-	{
-		id: "player",
-		type: "playerNode",
-		position: { x: 300, y: 150 },
-		data: { wood: 0 },
-	},
-	{
-		id: "wood",
-		type: "resourceNode",
-		position: { x: 750, y: 50 },
-		data: { label: "Wood" },
-	},
-];
-
-const initialEdges: Edge[] = [];
-
 function Game() {
-	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+	const { edges, setEdges, nodes, setNodes, onEdgesChange, onNodesChange } =
+		useFlowStore();
 
 	const addWoodResource = resourceStore((state) => state.addWood);
+	const resetEdges = gameStore((state) => state.resetEdges);
+	const setEdgesStore = gameStore((state) => state.setEdges);
 
 	const onConnect = useCallback(
 		(params: Edge | Connection) => {
@@ -89,8 +71,10 @@ function Game() {
 					}),
 				);
 			}
+
+			setEdgesStore(edges);
 		},
-		[setEdges, setNodes],
+		[setEdges, setNodes, edges, setEdgesStore],
 	);
 
 	const onEdgesDelete = useCallback(
@@ -114,9 +98,10 @@ function Game() {
 						return node;
 					}),
 				);
+				resetEdges();
 			}
 		},
-		[setNodes],
+		[setNodes, resetEdges],
 	);
 
 	useEffect(() => {
@@ -142,10 +127,7 @@ function Game() {
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
 				fitView
-				attributionPosition="bottom-left"
 			>
-				<MiniMap />
-				<Controls />
 				<Background gap={12} size={1} />
 			</ReactFlow>
 		</ReactFlowProvider>

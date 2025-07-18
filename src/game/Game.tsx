@@ -1,14 +1,15 @@
 "use client";
 
-import ReactFlow, {
+import {
 	addEdge,
 	Background,
 	type Connection,
 	type Edge,
 	MarkerType,
+	ReactFlow,
 	ReactFlowProvider,
-} from "reactflow";
-import "reactflow/dist/style.css";
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect } from "react";
 import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
 import { useFlowStore } from "@/store/flowStore";
@@ -112,22 +113,24 @@ function Game() {
 	}, [nodes, addWoodResource]);
 
 	return (
-		<ReactFlowProvider>
-			<ReactFlow
-				nodes={nodes}
-				edges={edges}
-				onNodesChange={onNodesChange}
-				onEdgesChange={onEdgesChange}
-				onConnect={onConnect}
-				onEdgesDelete={onEdgesDelete}
-				nodeTypes={nodeTypes}
-				edgeTypes={edgeTypes}
-				fitView
-			>
-				<Background gap={12} size={1} />
-			</ReactFlow>
-			<Inventory />
-		</ReactFlowProvider>
+		<div className="w-screen h-screen">
+			<ReactFlowProvider>
+				<ReactFlow
+					nodes={nodes}
+					edges={edges}
+					onNodesChange={onNodesChange}
+					onEdgesChange={onEdgesChange}
+					onConnect={onConnect}
+					onEdgesDelete={onEdgesDelete}
+					nodeTypes={nodeTypes}
+					edgeTypes={edgeTypes}
+					fitView
+				>
+					<Background gap={12} size={1} />
+				</ReactFlow>
+				<Inventory />
+			</ReactFlowProvider>
+		</div>
 	);
 }
 

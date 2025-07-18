@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { resourceDetails } from "@/enums/Resources";
 
 type ResourceStore = {
 	coins: number;
@@ -13,10 +14,12 @@ type ResourceStore = {
 type ResourceActions = {
 	addWood: () => void;
 	upgradeWoodPerAction: () => void;
-
 	sellResources: () => void;
-
 	resetResourceStore: () => void;
+	getAllResources: () => Array<{
+		value: number;
+		label: string;
+	}>;
 };
 
 const defaultValues = {
@@ -29,7 +32,7 @@ const defaultValues = {
 
 export const resourceStore = create<ResourceStore & ResourceActions>()(
 	persist<ResourceStore & ResourceActions>(
-		(set) => ({
+		(set, get) => ({
 			...defaultValues,
 
 			addWood: () =>
@@ -37,10 +40,7 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 					wood: state.wood + state.woodPerAction,
 				})),
 			upgradeWoodPerAction: () => {
-				if (
-					resourceStore.getState().coins <
-					resourceStore.getState().woodUpgradeCost
-				) {
+				if (get().coins < get().woodUpgradeCost) {
 					alert("Not enough coins to upgrade wood production!");
 					return;
 				}
@@ -65,6 +65,21 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 				set({
 					...defaultValues,
 				});
+			},
+
+			getAllResources: () => {
+				const { coins, wood } = get();
+
+				return [
+					{
+						label: resourceDetails.Coins.name,
+						value: coins,
+					},
+					{
+						label: resourceDetails.Wood.name,
+						value: wood,
+					},
+				];
 			},
 		}),
 		{

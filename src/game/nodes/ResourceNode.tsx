@@ -1,4 +1,6 @@
-import { Handle, Position } from "reactflow";
+"use client";
+
+import { Handle, Position } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { resourceStore } from "@/store/resourceStore";
 

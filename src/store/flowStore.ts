@@ -7,7 +7,7 @@ import {
 	type OnConnect,
 	type OnEdgesChange,
 	type OnNodesChange,
-} from "reactflow";
+} from "@xyflow/react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

@@ -12,6 +12,8 @@ export default function PlayerNode() {
 	const coinsResource = resourceStore((state) => state.coins);
 	const woodResource = resourceStore((state) => state.wood);
 
+	const resetGame = gameStore((state) => state.resetGame);
+
 	return (
 		<div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-500 min-w-[180px]">
 			<div className="flex flex-col items-center">
@@ -26,13 +28,22 @@ export default function PlayerNode() {
 				<div className="text-sm text-gray-600 mt-2">Resources:</div>
 				<div className="text-sm">🪵 Wood: {woodResource}</div>
 				<div className="text-sm">💰 Coins: {coinsResource}</div>
-				<button
-					type="button"
-					onClick={() => sellResources()}
-					className="mt-2 border-2 border-gray-800 rounded-md px-2 text-gray-800"
-				>
-					Sell Resources
-				</button>
+				<div className="flex gap-4">
+					<button
+						type="button"
+						onClick={() => resetGame()}
+						className="mt-2 border-2 border-red-300 rounded-md px-2 text-red-300 font-medium opacity-50"
+					>
+						Reset Game
+					</button>
+					<button
+						type="button"
+						onClick={() => sellResources()}
+						className="mt-2 border-2 border-gray-800 rounded-md px-2 text-gray-800 font-medium"
+					>
+						Sell Resources
+					</button>
+				</div>
 			</div>
 			<Handle type="source" position={Position.Right} id="player-source" />
 		</div>

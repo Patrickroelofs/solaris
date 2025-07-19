@@ -118,3 +118,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.react-flow__handle {
+  width: 16px !important;
+  height: 16px !important;
+}

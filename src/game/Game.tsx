@@ -73,19 +73,23 @@ function Game() {
 
 	const onEdgesDelete = useCallback(
 		(deletedEdges: Edge[]) => {
+			setEdges((eds) =>
+				eds.filter(
+					(edge) => !deletedEdges.some((delEdge) => delEdge.id === edge.id),
+				),
+			);
+
 			const isPlayerEdgeDeleted = deletedEdges.some(
-				(edge) => edge.source === "player" && edge.target === Resources.Wood,
+				(edge) => edge.source === "player",
 			);
 
 			if (isPlayerEdgeDeleted) {
 				setNodes((nds) =>
 					nds.map((node) => {
-						if (node.deletable === false) return node;
 						if (node.id === "player") {
 							return {
 								...node,
 								data: {
-									...node.data,
 									currentAction: null,
 								},
 							};
@@ -95,12 +99,13 @@ function Game() {
 				);
 			}
 		},
-		[setNodes],
+		[setNodes, setEdges],
 	);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const playerNode = nodes.find((node) => node.id === "player");
+
 			if (playerNode?.data.currentAction) {
 				// TODO: Type the currentAction properly
 				addResource(

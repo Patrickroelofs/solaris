@@ -9,7 +9,7 @@ import {
 	ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { type ReactElement, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Resources } from "@/enums/Resources";
 import { useFlowStore } from "@/store/flowStore";
 import { playerStore } from "@/store/playerStore.ts";
@@ -23,7 +23,7 @@ const nodeTypes = {
 	resourceNode: ResourceNode,
 };
 
-function Flow(props: ReactElement) {
+function Flow() {
 	const { edges, setEdges, nodes, onEdgesChange, onNodesChange } =
 		useFlowStore();
 
@@ -73,7 +73,6 @@ function Flow(props: ReactElement) {
 
 	return (
 		<ReactFlow
-			{...props}
 			nodes={nodes}
 			edges={edges}
 			onNodesChange={onNodesChange}
@@ -88,11 +87,11 @@ function Flow(props: ReactElement) {
 	);
 }
 
-function Game(props: ReactElement) {
+function Game() {
 	return (
 		<div className="w-screen h-screen">
 			<ReactFlowProvider>
-				<Flow {...props} />
+				<Flow />
 				<Inventory />
 			</ReactFlowProvider>
 		</div>

@@ -53,7 +53,7 @@ export default function PlayerNode() {
 			</TabsContent>
 
 			<CustomHandle
-				connectionCount={1}
+				connectioncount={1}
 				type="source"
 				position={Position.Right}
 				id="player-source"

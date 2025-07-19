@@ -21,7 +21,7 @@ export default function ResourceNode({
 				<span className="font-medium text-xl">{data.resource}</span>
 			</div>
 			<CustomHandle
-				connectionCount={1}
+				connectioncount={1}
 				type="target"
 				position={Position.Left}
 				id="resource-target"

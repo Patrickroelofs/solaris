@@ -8,9 +8,11 @@ import {
 	MarkerType,
 	ReactFlow,
 	ReactFlowProvider,
+	useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
 import { Resources } from "@/enums/Resources";
 import { useFlowStore } from "@/store/flowStore";
@@ -28,7 +30,10 @@ const edgeTypes = {
 	animatedSvgEdge: AnimatedSvgEdge,
 };
 
-function Game() {
+const getId = () => `${uuidv4()}`;
+
+function Flow(props: Record<string, unknown>) {
+	const { screenToFlowPosition } = useReactFlow();
 	const { edges, setEdges, nodes, setNodes, onEdgesChange, onNodesChange } =
 		useFlowStore();
 
@@ -69,6 +74,43 @@ function Game() {
 			}
 		},
 		[setEdges, setNodes],
+	);
+
+	const onConnectEnd = useCallback(
+		(
+			event: MouseEvent | TouchEvent,
+			connectionState: Record<string, unknown>,
+		) => {
+			const state = connectionState as {
+				isValid: boolean;
+				fromNode: { id: string };
+				target?: string;
+			};
+			if (!state.isValid) {
+				const id = getId();
+
+				const { clientX, clientY } =
+					"changedTouches" in event ? event.changedTouches[0] : event;
+
+				const newNode = {
+					id,
+					position: screenToFlowPosition({
+						x: clientX,
+						y: clientY,
+					}),
+					type: "resourceNode",
+					data: {
+						resourceSelected: false,
+					},
+				};
+
+				setNodes((nds) => nds.concat(newNode));
+				setEdges((eds) =>
+					eds.concat({ id, source: state.fromNode.id, target: id }),
+				);
+			}
+		},
+		[screenToFlowPosition, setEdges, setNodes],
 	);
 
 	const onEdgesDelete = useCallback(
@@ -119,21 +161,29 @@ function Game() {
 	}, [nodes, addResource]);
 
 	return (
+		<ReactFlow
+			{...props}
+			nodes={nodes}
+			edges={edges}
+			onNodesChange={onNodesChange}
+			onEdgesChange={onEdgesChange}
+			onConnect={onConnect}
+			onEdgesDelete={onEdgesDelete}
+			onConnectEnd={onConnectEnd}
+			nodeTypes={nodeTypes}
+			edgeTypes={edgeTypes}
+			fitView
+		>
+			<Background gap={12} size={1} />
+		</ReactFlow>
+	);
+}
+
+function Game(props: Record<string, unknown>) {
+	return (
 		<div className="w-screen h-screen">
 			<ReactFlowProvider>
-				<ReactFlow
-					nodes={nodes}
-					edges={edges}
-					onNodesChange={onNodesChange}
-					onEdgesChange={onEdgesChange}
-					onConnect={onConnect}
-					onEdgesDelete={onEdgesDelete}
-					nodeTypes={nodeTypes}
-					edgeTypes={edgeTypes}
-					fitView
-				>
-					<Background gap={12} size={1} />
-				</ReactFlow>
+				<Flow {...props} />
 				<Inventory />
 			</ReactFlowProvider>
 		</div>

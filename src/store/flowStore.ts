@@ -33,13 +33,6 @@ const initialNodes: Node[] = [
 		data: { Wood: [] },
 		deletable: false,
 	},
-	{
-		id: "Wood",
-		type: "resourceNode",
-		position: { x: 750, y: 50 },
-		data: { label: "Wood" },
-		deletable: false,
-	},
 ];
 
 export const useFlowStore = create<FlowState>()(

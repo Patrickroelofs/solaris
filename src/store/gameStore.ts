@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { playerStore } from "@/store/playerStore.ts";
+import { upgradeStore } from "@/store/upgradeStore.ts";
 import { useFlowStore } from "./flowStore";
 import { resourceStore } from "./resourceStore";
 
@@ -18,6 +19,7 @@ export const gameStore = create<GameStore & GameActions>()(
 				resourceStore.getState().resetResourceStore();
 				useFlowStore.getState().resetFlowStore();
 				playerStore.getState().resetPlayerStore();
+				upgradeStore.getState().resetUpgrades();
 				gameStore.getState().resetGameStore();
 			},
 

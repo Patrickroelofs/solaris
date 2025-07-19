@@ -11,7 +11,7 @@ type ResourceStore = {
 
 type ResourceActions = {
 	addResource: (resource: ResourcesType, amount: string) => void;
-	sellResource: (resource: ResourcesType, amount: string | "all") => void;
+	sellResource: (resource: ResourcesType, amount: number[] | "all") => void;
 	resetResourceStore: () => void;
 
 	getAllResources: () => Array<{
@@ -50,9 +50,17 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 					return;
 				}
 
+				if (resource === Resources.Coins) {
+					set((state) => ({
+						Coins: subtract(amount, state.Coins),
+					}));
+
+					return;
+				}
+
 				set((state) => ({
-					Coins: add(arrayNum(amount), state.Coins),
-					[resource]: subtract(arrayNum(amount), state[resource]),
+					Coins: add(amount, state.Coins),
+					[resource]: subtract(amount, state[resource]),
 				}));
 			},
 

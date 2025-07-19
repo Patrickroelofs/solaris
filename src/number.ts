@@ -11,6 +11,17 @@ const NOTATION: string[] = [
 	"Oc",
 ];
 
+function equalArrayNum(a: number[], b: number[]): boolean {
+	if (a.length !== b.length) return false;
+
+	for (let i = 0; i < a.length; i++) {
+		console.log(a[i] !== b[i]);
+		if (a[i] !== b[i]) return false;
+	}
+
+	return true;
+}
+
 function arrayNum(num: string): number[] {
 	const arr: number[] = [];
 	while (num !== "") {
@@ -79,6 +90,22 @@ function subtract(num: number[], currentValue: number[]): number[] {
 	return result;
 }
 
+function isGreaterThan(a: number[], b: number[]): boolean {
+	const revA = [...a].reverse();
+	const revB = [...b].reverse();
+
+	if (revA.length !== revB.length) {
+		return revA.length > revB.length;
+	}
+
+	for (let i = 0; i < revA.length; i++) {
+		if (revA[i] > revB[i]) return true;
+		if (revA[i] < revB[i]) return false;
+	}
+
+	return false; // they are equal
+}
+
 function renderTotal(total: number[]): {
 	full: string;
 	short: string;
@@ -101,4 +128,4 @@ function renderTotal(total: number[]): {
 	};
 }
 
-export { arrayNum, add, subtract, renderTotal };
+export { arrayNum, equalArrayNum, isGreaterThan, add, subtract, renderTotal };

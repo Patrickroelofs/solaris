@@ -3,8 +3,10 @@
 import { Handle, Position, useNodes } from "@xyflow/react";
 import { useState } from "react";
 import { IconMapper } from "@/components/icon-mapper";
+import { Button } from "@/components/ui/button.tsx";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { ResourcesType } from "@/enums/Resources";
+import { useFlowStore } from "@/store/flowStore.ts";
 
 export default function ResourceNode({
 	id,
@@ -15,17 +17,39 @@ export default function ResourceNode({
 }) {
 	const nodes = useNodes();
 	const node = nodes.find((n) => n.id === id);
-
-	console.log(node);
+	const flowStore = useFlowStore();
 
 	const [isDialogOpen, setIsDialogOpen] = useState(
 		!node?.data.resourceSelected,
 	);
 
+	const handleClick = () => {
+		if (node) {
+			flowStore.setNodes((nodes) =>
+				nodes.map((n) =>
+					n.id === id
+						? {
+								...n,
+								data: {
+									...n.data,
+									label: "Wood",
+									resourceSelected: true,
+								},
+							}
+						: n,
+				),
+			);
+
+			setIsDialogOpen(false);
+		}
+	};
+
 	return (
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 			<div className="relative">
-				<DialogContent className="z-50">Hello World</DialogContent>
+				<DialogContent className="z-50">
+					<Button onClick={handleClick}>Wood</Button>
+				</DialogContent>
 				<div
 					className={
 						"px-4 py-2 shadow-md rounded-md border-2 bg-gray-200 border-gray-400"

@@ -1,32 +1,30 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Resources, type ResourcesType } from "@/enums/Resources";
+import { add, arrayNum, renderTotal, subtract } from "@/number";
 
 type ResourceStore = {
-	Coins: number;
-	Wood: number;
-	woodPerAction: number;
-	woodUpgradeCost: number;
-	woodUpgradeLevel: number;
+	Coins: number[];
+	Wood: number[];
 };
 
 type ResourceActions = {
-	addWood: () => void;
-	upgradeWoodPerAction: () => void;
-	sellResource: (resource: ResourcesType, amount: number) => void;
+	addResource: (resource: ResourcesType, amount: string) => void;
+	sellResource: (resource: ResourcesType, amount: string | "all") => void;
 	resetResourceStore: () => void;
+
 	getAllResources: () => Array<{
 		label: ResourcesType;
-		value: number;
+		value: {
+			full: string;
+			short: string;
+		};
 	}>;
 };
 
 const defaultValues = {
-	Coins: 0,
-	Wood: 0,
-	woodPerAction: 1,
-	woodUpgradeCost: 10,
-	woodUpgradeLevel: 0,
+	Coins: [],
+	Wood: [],
 };
 
 export const resourceStore = create<ResourceStore & ResourceActions>()(
@@ -34,33 +32,25 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 		(set, get) => ({
 			...defaultValues,
 
-			addWood: () =>
+			addResource: (resource, amount) => {
 				set((state) => ({
-					Wood: state.Wood + state.woodPerAction,
-				})),
-			upgradeWoodPerAction: () => {
-				if (get().Coins < get().woodUpgradeCost) {
-					alert("Not enough coins to upgrade wood production!");
-					return;
-				}
-
-				set((state) => ({
-					woodPerAction: state.woodPerAction + 1,
-					woodUpgradeCost:
-						state.woodUpgradeCost + 10 * (state.woodUpgradeLevel + 1),
-					woodUpgradeLevel: state.woodUpgradeLevel + 1,
-					coins: state.Coins - state.woodUpgradeCost,
+					[resource]: add(arrayNum(amount), state[resource]),
 				}));
 			},
 
 			sellResource: (resource, amount) => {
-				if (resource === Resources.Coins) {
-					throw new Error("Cannot sell coins directly.");
+				if (amount === "all") {
+					set((state) => ({
+						Coins: add(state[resource], state.Coins),
+						[resource]: subtract(state[resource], state[resource]),
+					}));
+
+					return;
 				}
 
 				set((state) => ({
-					[resource]: state[resource] - amount,
-					Coins: state.Coins + state[resource],
+					Coins: add(arrayNum(amount), state.Coins),
+					[resource]: subtract(arrayNum(amount), state[resource]),
 				}));
 			},
 
@@ -76,11 +66,11 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 				return [
 					{
 						label: Resources.Coins,
-						value: Coins,
+						value: renderTotal(Coins),
 					},
 					{
 						label: Resources.Wood,
-						value: Wood,
+						value: renderTotal(Wood),
 					},
 				];
 			},

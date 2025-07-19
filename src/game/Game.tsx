@@ -12,6 +12,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect } from "react";
 import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
+import { Resources } from "@/enums/Resources";
 import { useFlowStore } from "@/store/flowStore";
 import { resourceStore } from "@/store/resourceStore";
 import Inventory from "./Inventory";
@@ -31,7 +32,7 @@ function Game() {
 	const { edges, setEdges, nodes, setNodes, onEdgesChange, onNodesChange } =
 		useFlowStore();
 
-	const addWoodResource = resourceStore((state) => state.addWood);
+	const addResource = resourceStore((state) => state.addResource);
 
 	const onConnect = useCallback(
 		(params: Edge | Connection) => {
@@ -55,16 +56,12 @@ function Game() {
 				setNodes((nds) =>
 					nds.map((node) => {
 						if (node.id === "player") {
-							const updatedData = {
-								...node.data,
-								choppingWood: false,
+							return {
+								...node,
+								data: {
+									currentAction: params.target,
+								},
 							};
-
-							if (params.target === "wood") {
-								updatedData.choppingWood = true;
-							}
-
-							return { ...node, data: updatedData };
 						}
 						return node;
 					}),
@@ -77,7 +74,7 @@ function Game() {
 	const onEdgesDelete = useCallback(
 		(deletedEdges: Edge[]) => {
 			const isPlayerEdgeDeleted = deletedEdges.some(
-				(edge) => edge.source === "player" && edge.target === "wood",
+				(edge) => edge.source === "player" && edge.target === Resources.Wood,
 			);
 
 			if (isPlayerEdgeDeleted) {
@@ -89,7 +86,7 @@ function Game() {
 								...node,
 								data: {
 									...node.data,
-									choppingWood: false,
+									currentAction: null,
 								},
 							};
 						}
@@ -104,13 +101,17 @@ function Game() {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const playerNode = nodes.find((node) => node.id === "player");
-			if (playerNode?.data.choppingWood) {
-				addWoodResource();
+			if (playerNode?.data.currentAction) {
+				// TODO: Type the currentAction properly
+				addResource(
+					Resources[playerNode.data.currentAction as keyof typeof Resources],
+					"1",
+				);
 			}
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [nodes, addWoodResource]);
+	}, [nodes, addResource]);
 
 	return (
 		<div className="w-screen h-screen">

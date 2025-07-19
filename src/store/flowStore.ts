@@ -30,11 +30,11 @@ const initialNodes: Node[] = [
 		id: "player",
 		type: "playerNode",
 		position: { x: 300, y: 150 },
-		data: { wood: 0 },
+		data: { Wood: [] },
 		deletable: false,
 	},
 	{
-		id: "wood",
+		id: "Wood",
 		type: "resourceNode",
 		position: { x: 750, y: 50 },
 		data: { label: "Wood" },

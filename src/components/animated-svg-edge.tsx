@@ -64,7 +64,7 @@ export function AnimatedSvgEdge({
 		direction: "forward",
 		path: "bezier",
 		repeat: "indefinite",
-		shape: "wood",
+		shape: "Wood",
 	},
 }: EdgeProps<AnimatedSvgEdge>) {
 	const Shape = shapes[data.shape];
@@ -105,7 +105,7 @@ type AnimateMotionProps = {
 type AnimatedSvg = FC<{ animateMotionProps: AnimateMotionProps }>;
 
 const shapes = {
-	wood: ({ animateMotionProps }) => (
+	Wood: ({ animateMotionProps }) => (
 		<svg
 			className="fill-yellow-900"
 			xmlns="http://www.w3.org/2000/svg"

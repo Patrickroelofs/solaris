@@ -1,15 +1,17 @@
 "use client";
 
-import { Handle, Position } from "@xyflow/react";
+import { Position } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CustomHandle from "@/handles/CustomHandle.tsx";
 import { gameStore } from "@/store/gameStore";
+import { playerStore } from "@/store/playerStore.ts";
 
 export default function PlayerNode() {
-	const playerName = gameStore((state) => state.playerName);
-	const changePlayerName = gameStore((state) => state.setPlayerName);
+	const playerName = playerStore((state) => state.playerName);
+	const changePlayerName = playerStore((state) => state.setPlayerName);
 
 	return (
 		<Tabs
@@ -50,7 +52,12 @@ export default function PlayerNode() {
 				</div>
 			</TabsContent>
 
-			<Handle type="source" position={Position.Right} id="player-source" />
+			<CustomHandle
+				connectionCount={1}
+				type="source"
+				position={Position.Right}
+				id="player-source"
+			/>
 		</Tabs>
 	);
 }

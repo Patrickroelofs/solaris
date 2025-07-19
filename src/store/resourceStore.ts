@@ -6,6 +6,7 @@ import { add, arrayNum, renderTotal, subtract } from "@/number";
 type ResourceStore = {
 	Coins: number[];
 	Wood: number[];
+	Stone: number[];
 };
 
 type ResourceActions = {
@@ -25,6 +26,7 @@ type ResourceActions = {
 const defaultValues = {
 	Coins: [],
 	Wood: [],
+	Stone: [],
 };
 
 export const resourceStore = create<ResourceStore & ResourceActions>()(
@@ -61,7 +63,7 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 			},
 
 			getAllResources: () => {
-				const { Coins, Wood } = get();
+				const { Coins, Wood, Stone } = get();
 
 				return [
 					{
@@ -71,6 +73,10 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 					{
 						label: Resources.Wood,
 						value: renderTotal(Wood),
+					},
+					{
+						label: Resources.Stone,
+						value: renderTotal(Stone),
 					},
 				];
 			},

@@ -1,15 +1,12 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { playerStore } from "@/store/playerStore.ts";
 import { useFlowStore } from "./flowStore";
 import { resourceStore } from "./resourceStore";
 
-type GameStore = {
-	playerName: string;
-};
+type GameStore = {};
 
 type GameActions = {
-	setPlayerName: (name: string) => void;
-
 	resetGame: () => void;
 	resetGameStore: () => void;
 };
@@ -17,18 +14,15 @@ type GameActions = {
 export const gameStore = create<GameStore & GameActions>()(
 	persist<GameStore & GameActions>(
 		(set) => ({
-			playerName: "Player",
-
-			setPlayerName: (name) => set({ playerName: name }),
-
 			resetGame: () => {
 				resourceStore.getState().resetResourceStore();
 				useFlowStore.getState().resetFlowStore();
+				playerStore.getState().resetPlayerStore();
 				gameStore.getState().resetGameStore();
 			},
 
 			resetGameStore: () => {
-				set({ playerName: "Player" });
+				set({});
 			},
 		}),
 		{

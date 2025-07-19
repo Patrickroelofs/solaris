@@ -10,12 +10,17 @@ import {
 } from "@xyflow/react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { Resources, type ResourcesType } from "@/enums/Resources.tsx";
 
 type FlowState = {
-	edges: Edge[];
-	nodes: Node[];
-	setEdges: (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void;
-	setNodes: (nodes: Node[] | ((nodes: Node[]) => Node[])) => void;
+	edges: Edge<EdgeData>[];
+	nodes: Node<NodeData>[];
+	setEdges: (
+		edges: Edge<EdgeData>[] | ((edges: Edge<EdgeData>[]) => Edge<EdgeData>[]),
+	) => void;
+	setNodes: (
+		nodes: Node<NodeData>[] | ((nodes: Node<NodeData>[]) => Node<NodeData>[]),
+	) => void;
 	onEdgesChange: OnEdgesChange;
 	onNodesChange: OnNodesChange;
 	onConnect: OnConnect;
@@ -23,14 +28,34 @@ type FlowState = {
 	resetFlowStore: () => void;
 };
 
-const initialEdges: Edge[] = [];
+export type EdgeData = {};
 
-const initialNodes: Node[] = [
+const initialEdges: Edge<EdgeData>[] = [];
+
+export type NodeData = {
+	resource?: ResourcesType;
+};
+
+const initialNodes: Node<NodeData>[] = [
 	{
 		id: "player",
 		type: "playerNode",
 		position: { x: 300, y: 150 },
-		data: { Wood: [] },
+		data: {},
+		deletable: false,
+	},
+	{
+		id: "wood",
+		type: "resourceNode",
+		position: { x: 750, y: 50 },
+		data: { resource: Resources.Wood },
+		deletable: false,
+	},
+	{
+		id: "stone",
+		type: "resourceNode",
+		position: { x: 750, y: 250 },
+		data: { resource: Resources.Stone },
 		deletable: false,
 	},
 ];

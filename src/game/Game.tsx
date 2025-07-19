@@ -5,17 +5,14 @@ import {
 	Background,
 	type Connection,
 	type Edge,
-	MarkerType,
 	ReactFlow,
 	ReactFlowProvider,
-	useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { AnimatedSvgEdge } from "@/components/animated-svg-edge";
+import { type ReactElement, useCallback, useEffect } from "react";
 import { Resources } from "@/enums/Resources";
 import { useFlowStore } from "@/store/flowStore";
+import { playerStore } from "@/store/playerStore.ts";
 import { resourceStore } from "@/store/resourceStore";
 import Inventory from "./Inventory";
 import PlayerNode from "./nodes/PlayerNode";
@@ -26,139 +23,53 @@ const nodeTypes = {
 	resourceNode: ResourceNode,
 };
 
-const edgeTypes = {
-	animatedSvgEdge: AnimatedSvgEdge,
-};
-
-const getId = () => `${uuidv4()}`;
-
-function Flow(props: Record<string, unknown>) {
-	const { screenToFlowPosition } = useReactFlow();
-	const { edges, setEdges, nodes, setNodes, onEdgesChange, onNodesChange } =
+function Flow(props: ReactElement) {
+	const { edges, setEdges, nodes, onEdgesChange, onNodesChange } =
 		useFlowStore();
+
+	const player = playerStore();
 
 	const addResource = resourceStore((state) => state.addResource);
 
 	const onConnect = useCallback(
 		(params: Edge | Connection) => {
-			const newEdge = {
-				...params,
-				type: "animatedSvgEdge",
-				data: {
-					duration: 1,
-					shape: params.target,
-					direction: "reverse",
-				},
-				markerEnd: { type: MarkerType.ArrowClosed },
-			};
+			const targetNode = nodes.find((node) => node.id === params.target);
 
-			if (params.source === "player") {
-				setEdges((eds) => {
-					const filteredEdges = eds.filter((edge) => edge.source !== "player");
-					return addEdge(newEdge, filteredEdges);
-				});
-
-				setNodes((nds) =>
-					nds.map((node) => {
-						if (node.id === "player") {
-							return {
-								...node,
-								data: {
-									currentAction: params.target,
-								},
-							};
-						}
-						return node;
-					}),
-				);
+			if (targetNode?.data?.resource) {
+				player.setCurrentAction(targetNode.data.resource);
 			}
+
+			setEdges((eds) => {
+				return addEdge(params, eds);
+			});
 		},
-		[setEdges, setNodes],
-	);
-
-	const onConnectEnd = useCallback(
-		(
-			event: MouseEvent | TouchEvent,
-			connectionState: Record<string, unknown>,
-		) => {
-			const state = connectionState as {
-				isValid: boolean;
-				fromNode: { id: string };
-				target?: string;
-			};
-			if (!state.isValid) {
-				const id = getId();
-
-				const { clientX, clientY } =
-					"changedTouches" in event ? event.changedTouches[0] : event;
-
-				const newNode = {
-					id,
-					position: screenToFlowPosition({
-						x: clientX,
-						y: clientY,
-					}),
-					type: "resourceNode",
-					data: {
-						resourceSelected: false,
-					},
-				};
-
-				setNodes((nds) => nds.concat(newNode));
-				setEdges((eds) =>
-					eds.concat({ id, source: state.fromNode.id, target: id }),
-				);
-			}
-		},
-		[screenToFlowPosition, setEdges, setNodes],
+		[setEdges, nodes, player.setCurrentAction],
 	);
 
 	const onEdgesDelete = useCallback(
 		(deletedEdges: Edge[]) => {
 			setEdges((eds) =>
-				eds.filter(
-					(edge) => !deletedEdges.some((delEdge) => delEdge.id === edge.id),
-				),
-			);
+				eds.filter((e) => {
+					if (e.source === "player") {
+						player.setCurrentAction(undefined);
+					}
 
-			const isPlayerEdgeDeleted = deletedEdges.some(
-				(edge) => edge.source === "player",
+					return !deletedEdges.some((de) => de.id === e.id);
+				}),
 			);
-
-			if (isPlayerEdgeDeleted) {
-				setNodes((nds) =>
-					nds.map((node) => {
-						if (node.id === "player") {
-							return {
-								...node,
-								data: {
-									currentAction: null,
-								},
-							};
-						}
-						return node;
-					}),
-				);
-			}
 		},
-		[setNodes, setEdges],
+		[setEdges, player.setCurrentAction],
 	);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			const playerNode = nodes.find((node) => node.id === "player");
-
-			if (playerNode?.data.currentAction) {
-				// TODO: Type the currentAction properly
-				addResource(
-					Resources[playerNode.data.currentAction as keyof typeof Resources],
-					"1",
-				);
+			if (player.currentAction) {
+				addResource(Resources[player.currentAction], "1");
 			}
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [nodes, addResource]);
+	}, [addResource, player.currentAction]);
 
 	return (
 		<ReactFlow
@@ -169,9 +80,7 @@ function Flow(props: Record<string, unknown>) {
 			onEdgesChange={onEdgesChange}
 			onConnect={onConnect}
 			onEdgesDelete={onEdgesDelete}
-			onConnectEnd={onConnectEnd}
 			nodeTypes={nodeTypes}
-			edgeTypes={edgeTypes}
 			fitView
 		>
 			<Background gap={12} size={1} />
@@ -179,7 +88,7 @@ function Flow(props: Record<string, unknown>) {
 	);
 }
 
-function Game(props: Record<string, unknown>) {
+function Game(props: ReactElement) {
 	return (
 		<div className="w-screen h-screen">
 			<ReactFlowProvider>

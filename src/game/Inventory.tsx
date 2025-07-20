@@ -18,12 +18,11 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Resources } from "@/enums/Resources";
+import { arrayNum } from "@/number";
 import { resourceStore } from "@/store/resourceStore";
-import { upgradeStore } from "@/store/upgradeStore.ts";
 
 function Inventory() {
 	const resources = resourceStore();
-	const upgrades = upgradeStore();
 
 	return (
 		<Card className="absolute bottom-0 left-0 w-full max-h-[30dvh] min-h-[20dvh] rounded-none overflow-scroll">
@@ -31,7 +30,6 @@ function Inventory() {
 				<Tabs defaultValue="inventory">
 					<TabsList>
 						<TabsTrigger value="inventory">Inventory</TabsTrigger>
-						<TabsTrigger value="upgrades">Upgrades</TabsTrigger>
 					</TabsList>
 
 					<TabsContent value="inventory">
@@ -57,7 +55,10 @@ function Inventory() {
 														<ContextMenuSubContent>
 															<ContextMenuItem
 																onClick={() => {
-																	resources.sellResource(resource.label, "all");
+																	resources.sellResource(
+																		resource.label,
+																		arrayNum("1"),
+																	);
 																}}
 															>
 																Sell All
@@ -71,23 +72,6 @@ function Inventory() {
 											<p>{resource.label}</p>
 										</TooltipContent>
 									</Tooltip>
-								);
-							})}
-						</div>
-					</TabsContent>
-					<TabsContent value="upgrades">
-						<div className="flex gap-4">
-							{upgrades.getAllUpgrades().map((upgrade) => {
-								return (
-									<Button
-										key={upgrade.id}
-										disabled={upgrade.unlocked}
-										onClick={() => {
-											upgrades.buyUpgrade(upgrade.id);
-										}}
-									>
-										{upgrade.name}
-									</Button>
 								);
 							})}
 						</div>

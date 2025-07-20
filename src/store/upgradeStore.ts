@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { Resources } from "@/enums/Resources.tsx";
+import { Resources, type ResourcesType } from "@/enums/Resources.tsx";
 import { arrayNum, isGreaterThan } from "@/number.ts";
 import { resourceStore } from "@/store/resourceStore.ts";
 
@@ -10,6 +10,7 @@ type Upgrade = {
 	cost: string;
 	multiplier: number;
 	unlocked: boolean;
+	resource: ResourcesType;
 };
 
 type UpgradeStore = {
@@ -17,25 +18,27 @@ type UpgradeStore = {
 };
 
 type UpgradeActions = {
-	buyUpgrade: (id: string) => void;
+	buyUpgrade: (id: string, currency: ResourcesType) => void;
 	getAllUpgrades: () => Upgrade[];
 	resetUpgrades: () => void;
 };
 
 const initialUpgrades: Record<string, Upgrade> = {
-	upgrade1: {
-		id: "upgrade1",
-		name: "Upgrade 1",
+	improvedAxe1: {
+		id: "improvedAxe1",
+		name: "Improved Axe",
 		cost: "10",
-		multiplier: 1.5,
+		multiplier: 2,
 		unlocked: false,
+		resource: Resources.Wood,
 	},
-	upgrade2: {
-		id: "upgrade2",
-		name: "Upgrade 2",
-		cost: "100",
-		multiplier: 2.0,
+	improvedAxe2: {
+		id: "improvedAxe2",
+		name: "Improved Pickaxe",
+		cost: "10",
+		multiplier: 3,
 		unlocked: false,
+		resource: Resources.Stone,
 	},
 };
 
@@ -46,13 +49,13 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 				...initialUpgrades,
 			},
 
-			buyUpgrade: (id: string) => {
+			buyUpgrade: (id: string, currency: ResourcesType) => {
 				const state = get();
 				const resources = resourceStore.getState();
 				const upgrade = state.upgrades[id];
 
-				if (isGreaterThan(arrayNum(upgrade.cost), resources.Coins)) {
-					throw new Error(`Not enough resources to buy upgrade ${id}`);
+				if (isGreaterThan(arrayNum(upgrade.cost), resources[currency])) {
+					throw new Error(`Not enough ${currency} to buy upgrade ${id}`);
 				}
 
 				const updatedUpgrade: Upgrade = {
@@ -60,7 +63,7 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 					unlocked: true,
 				};
 
-				resources.sellResource(Resources.Coins, arrayNum(upgrade.cost));
+				resources.sellResource(currency, arrayNum(upgrade.cost));
 
 				set({
 					upgrades: { ...state.upgrades, [id]: updatedUpgrade },

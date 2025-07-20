@@ -8,10 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CustomHandle from "@/handles/CustomHandle.tsx";
 import { gameStore } from "@/store/gameStore";
 import { playerStore } from "@/store/playerStore.ts";
+import { upgradeStore } from "@/store/upgradeStore";
 
 export default function PlayerNode() {
 	const playerName = playerStore((state) => state.playerName);
 	const changePlayerName = playerStore((state) => state.setPlayerName);
+	const upgrades = upgradeStore();
 
 	return (
 		<Tabs
@@ -20,6 +22,7 @@ export default function PlayerNode() {
 		>
 			<TabsList className="w-full">
 				<TabsTrigger value="player">Player</TabsTrigger>
+				<TabsTrigger value="upgrades">Upgrades</TabsTrigger>
 				<TabsTrigger value="settings">Settings</TabsTrigger>
 			</TabsList>
 			<TabsContent value="player">
@@ -49,6 +52,27 @@ export default function PlayerNode() {
 					>
 						Destroy Save
 					</Button>
+				</div>
+			</TabsContent>
+			<TabsContent value="upgrades">
+				<div className="flex gap-4 flex-col">
+					{upgrades.getAllUpgrades().map((upgrade) => {
+						return (
+							<Button
+								key={upgrade.id}
+								disabled={upgrade.unlocked}
+								onClick={() => {
+									upgrades.buyUpgrade(upgrade.id, upgrade.resource);
+								}}
+								className="flex flex-col h-auto"
+							>
+								<span>{upgrade.name}</span>
+								<span className="text-sm text-gray-300">
+									Cost: {upgrade.cost} {upgrade.resource}
+								</span>
+							</Button>
+						);
+					})}
 				</div>
 			</TabsContent>
 

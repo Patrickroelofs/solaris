@@ -103,14 +103,14 @@ function isGreaterThan(a: number[], b: number[]): boolean {
 		if (revA[i] < revB[i]) return false;
 	}
 
-	return false; // they are equal
+	return false;
 }
 
 function renderTotal(total: number[]): {
 	full: string;
 	short: string;
 } {
-	const temp = [...total].reverse(); // reverse for correct order
+	const temp = [...total].reverse();
 	const fullString = temp
 		.map((val, i) =>
 			i === 0 ? val.toString() : val.toString().padStart(3, "0"),

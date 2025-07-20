@@ -9,6 +9,7 @@ import {
 	ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import BigNumber from "bignumber.js";
 import { useCallback, useEffect } from "react";
 import { Resources } from "@/enums/Resources";
 import { useFlowStore } from "@/store/flowStore";
@@ -80,7 +81,7 @@ function Flow() {
 			if (player.currentAction) {
 				addResource(
 					Resources[player.currentAction],
-					actionMultiplier.toString(),
+					BigNumber(actionMultiplier),
 				);
 			}
 		}, 1000);

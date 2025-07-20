@@ -1,7 +1,7 @@
+import BigNumber from "bignumber.js";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Resources, type ResourcesType } from "@/enums/Resources.tsx";
-import { arrayNum, isGreaterThan } from "@/number.ts";
 import { resourceStore } from "@/store/resourceStore.ts";
 
 type Upgrade = {
@@ -54,7 +54,7 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 				const resources = resourceStore.getState();
 				const upgrade = state.upgrades[id];
 
-				if (isGreaterThan(arrayNum(upgrade.cost), resources[currency])) {
+				if (BigNumber(upgrade.cost).gt(resources[currency])) {
 					throw new Error(`Not enough ${currency} to buy upgrade ${id}`);
 				}
 
@@ -63,7 +63,7 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 					unlocked: true,
 				};
 
-				resources.sellResource(currency, arrayNum(upgrade.cost));
+				resources.sellResource(currency, BigNumber(upgrade.cost));
 
 				set({
 					upgrades: { ...state.upgrades, [id]: updatedUpgrade },

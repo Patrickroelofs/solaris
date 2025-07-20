@@ -1,6 +1,5 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { IconMapper } from "@/components/icon-mapper";
-import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent } from "@/components/ui/card";
 import {
 	ContextMenu,
@@ -18,7 +17,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Resources } from "@/enums/Resources";
-import { arrayNum } from "@/number";
 import { resourceStore } from "@/store/resourceStore";
 
 function Inventory() {
@@ -57,7 +55,7 @@ function Inventory() {
 																onClick={() => {
 																	resources.sellResource(
 																		resource.label,
-																		arrayNum("1"),
+																		BigNumber(1),
 																	);
 																}}
 															>

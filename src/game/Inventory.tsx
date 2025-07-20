@@ -1,4 +1,5 @@
 import { TabsContent } from "@radix-ui/react-tabs";
+import BigNumber from "bignumber.js";
 import { IconMapper } from "@/components/icon-mapper";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -17,6 +18,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Resources } from "@/enums/Resources";
+import { formatBigNumber } from "@/lib/number";
 import { resourceStore } from "@/store/resourceStore";
 
 function Inventory() {
@@ -34,16 +36,16 @@ function Inventory() {
 						<div className="flex gap-4">
 							{resources.getAllResources().map((resource) => {
 								return (
-									<Tooltip key={resource.label}>
+									<Tooltip key={resource.resource}>
 										<TooltipTrigger>
 											<ContextMenu>
 												<ContextMenuTrigger
-													disabled={resource.label === Resources.Coins}
+													disabled={resource.resource === Resources.Coins}
 												>
 													<div className="w-32 h-32 flex flex-col justify-center items-center bg-gray-100 rounded-lg">
-														<IconMapper name={resource.label} />
+														<IconMapper name={resource.resource} />
 														<p className="font-bold mt-2">
-															{resource.value.short}
+															{formatBigNumber(resource.amount)}
 														</p>
 													</div>
 												</ContextMenuTrigger>
@@ -54,7 +56,7 @@ function Inventory() {
 															<ContextMenuItem
 																onClick={() => {
 																	resources.sellResource(
-																		resource.label,
+																		resource.resource,
 																		BigNumber(1),
 																	);
 																}}
@@ -67,7 +69,7 @@ function Inventory() {
 											</ContextMenu>
 										</TooltipTrigger>
 										<TooltipContent>
-											<p>{resource.label}</p>
+											<p>{resource.resource}</p>
 										</TooltipContent>
 									</Tooltip>
 								);

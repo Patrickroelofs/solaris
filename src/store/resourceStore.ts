@@ -15,11 +15,8 @@ type ResourceActions = {
 	resetResourceStore: () => void;
 
 	getAllResources: () => Array<{
-		label: ResourcesType;
-		value: {
-			full: string;
-			short: string;
-		};
+		resource: ResourcesType;
+		amount: BigNumber;
 	}>;
 };
 
@@ -53,31 +50,14 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 			},
 
 			getAllResources: () => {
-				const { Coins, Wood, Stone } = get();
-
-				return [
-					{
-						label: Resources.Coins,
-						value: {
-							full: Coins.toFixed(2),
-							short: Coins.toFormat(0, BigNumber.ROUND_DOWN),
-						},
-					},
-					{
-						label: Resources.Wood,
-						value: {
-							full: Wood.toFixed(2),
-							short: Wood.toFormat(0, BigNumber.ROUND_DOWN),
-						},
-					},
-					{
-						label: Resources.Stone,
-						value: {
-							full: Stone.toFixed(2),
-							short: Stone.toFormat(0, BigNumber.ROUND_DOWN),
-						},
-					},
-				];
+				return Object.entries(get())
+					.filter(([key]) =>
+						Object.values(Resources).includes(key as ResourcesType),
+					)
+					.map(([key, value]) => ({
+						resource: key as ResourcesType,
+						amount: value as BigNumber,
+					}));
 			},
 		}),
 		{

@@ -32,11 +32,11 @@ const initialUpgrades: Record<string, Upgrade> = {
 		unlocked: false,
 		resource: Resources.Wood,
 	},
-	improvedAxe2: {
-		id: "improvedAxe2",
+	improvedPickaxe1: {
+		id: "improvedPickaxe1",
 		name: "Improved Pickaxe",
 		cost: "10",
-		multiplier: 3,
+		multiplier: 2,
 		unlocked: false,
 		resource: Resources.Stone,
 	},

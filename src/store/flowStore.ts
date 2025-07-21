@@ -28,6 +28,7 @@ type FlowState = {
 	resetFlowStore: () => void;
 };
 
+// biome-ignore lint/complexity/noBannedTypes: This will be filled with data later
 export type EdgeData = {};
 
 const initialEdges: Edge<EdgeData>[] = [];

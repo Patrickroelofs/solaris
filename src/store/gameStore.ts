@@ -5,6 +5,7 @@ import { upgradeStore } from "@/store/upgradeStore.ts";
 import { useFlowStore } from "./flowStore";
 import { resourceStore } from "./resourceStore";
 
+// biome-ignore lint/complexity/noBannedTypes: This will be filled with data later
 type GameStore = {};
 
 type GameActions = {

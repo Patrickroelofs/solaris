@@ -10,6 +10,7 @@ export function useGameLoop() {
 	const lastTimeRef = useRef(0);
 	const animationFrameRef = useRef(0);
 
+	// TODO: Investigate if resources.addResource causes performance issues
 	useEffect(() => {
 		const gameLoop = (currentTime: number) => {
 			if (lastTimeRef.current === 0) {
@@ -39,5 +40,5 @@ export function useGameLoop() {
 				cancelAnimationFrame(animationFrameRef.current);
 			}
 		};
-	}, [player.currentAction]);
+	}, [player.currentAction, resources.addResource]);
 }

@@ -26,6 +26,8 @@ const nodeTypes = {
 };
 
 function Flow() {
+	const animationRef = useRef<number>()
+  	const lastFrameTime = useRef<number>(0)
 	const { edges, setEdges, nodes, onEdgesChange, onNodesChange } =
 		useFlowStore();
 
@@ -64,30 +66,53 @@ function Flow() {
 		[setEdges, player.setCurrentAction],
 	);
 
+	const gameLoop = useCallback((currentTime: number) => {
+const deltaTime = (currentTime - lastFrameTime.current) / 1000
+    lastFrameTime.current = currentTime
+
+    if (deltaTime > 0 && deltaTime < 1) {
+		console.log("handle gameloop")
+    }
+
+    animationRef.current = requestAnimationFrame(gameLoop)
+	}, [])
+
 	useEffect(() => {
-		const interval = setInterval(() => {
-			const actionMultiplier = upgrades
-				.getAllUpgrades()
-				.reduce(
-					(acc, upgrade) =>
-						upgrade.unlocked
-							? player.currentAction === upgrade.resource
-								? acc * upgrade.multiplier
-								: acc
-							: acc,
-					1,
-				);
+    	lastFrameTime.current = performance.now()
+    	animationRef.current = requestAnimationFrame(gameLoop)
 
-			if (player.currentAction) {
-				addResource(
-					Resources[player.currentAction],
-					BigNumber(actionMultiplier),
-				);
-			}
-		}, 1000);
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+    }
+  }, [gameLoop])
 
-		return () => clearInterval(interval);
-	}, [addResource, player.currentAction, upgrades.getAllUpgrades]);
+
+	// useEffect(() => {
+	// 	const interval = setInterval(() => {
+	// 		const actionMultiplier = upgrades
+	// 			.getAllUpgrades()
+	// 			.reduce(
+	// 				(acc, upgrade) =>
+	// 					upgrade.unlocked
+	// 						? player.currentAction === upgrade.resource
+	// 							? acc * upgrade.multiplier
+	// 							: acc
+	// 						: acc,
+	// 				1,
+	// 			);
+
+	// 		if (player.currentAction) {
+	// 			addResource(
+	// 				Resources[player.currentAction],
+	// 				BigNumber(actionMultiplier),
+	// 			);
+	// 		}
+	// 	}, 1000);
+
+	// 	return () => clearInterval(interval);
+	// }, [addResource, player.currentAction, upgrades.getAllUpgrades]);
 
 	return (
 		<ReactFlow

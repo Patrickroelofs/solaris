@@ -18,7 +18,7 @@ function formatBigNumber(value: BigNumber) {
 		}
 	}
 
-	return formattedValue.toString();
+	return formattedValue.decimalPlaces(0).toString();
 }
 
 export { formatBigNumber };

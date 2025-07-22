@@ -45,7 +45,7 @@ function Inventory() {
 													<div className="w-32 h-32 flex flex-col justify-center items-center bg-gray-100 rounded-lg">
 														<IconMapper name={resource.resource} />
 														<p className="font-bold mt-2">
-															{formatBigNumber(resource.amount)}
+															{formatBigNumber(resource.value)}
 														</p>
 													</div>
 												</ContextMenuTrigger>
@@ -57,7 +57,10 @@ function Inventory() {
 																onClick={() => {
 																	resources.sellResource(
 																		resource.resource,
-																		BigNumber(1),
+																		BigNumber(
+																			resources[resource.resource].value,
+																		),
+																		Resources.Coins,
 																	);
 																}}
 															>

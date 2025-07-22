@@ -3,27 +3,41 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Resources, type ResourcesType } from "@/enums/Resources";
 
-type ResourceStore = {
-	Coins: BigNumber;
-	Wood: BigNumber;
-	Stone: BigNumber;
+type Resource = {
+	value: BigNumber;
+	perAction: BigNumber;
 };
 
-type ResourceActions = {
-	addResource: (resource: ResourcesType, amount: BigNumber) => void;
-	sellResource: (resource: ResourcesType, amount: BigNumber) => void;
-	resetResourceStore: () => void;
+type ResourceStore = Record<ResourcesType, Resource>;
 
+type ResourceActions = {
+	addResource: (resource: ResourcesType, deltaTime: number) => void;
+	updatePerAction: (resource: ResourcesType, perAction: number) => void;
+	sellResource: (
+		resource: ResourcesType,
+		amount: BigNumber,
+		addTo?: ResourcesType,
+	) => void;
+	resetResourceStore: () => void;
 	getAllResources: () => Array<{
 		resource: ResourcesType;
-		amount: BigNumber;
+		value: BigNumber;
 	}>;
 };
 
 const defaultValues = {
-	Coins: BigNumber(0),
-	Wood: BigNumber(0),
-	Stone: BigNumber(0),
+	Coins: {
+		value: BigNumber(0),
+		perAction: BigNumber(0),
+	},
+	Wood: {
+		value: BigNumber(0),
+		perAction: BigNumber(1),
+	},
+	Stone: {
+		value: BigNumber(0),
+		perAction: BigNumber(1),
+	},
 };
 
 export const resourceStore = create<ResourceStore & ResourceActions>()(
@@ -31,16 +45,47 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 		(set, get) => ({
 			...defaultValues,
 
-			addResource: (resource, amount) => {
+			addResource: (resource, deltaTime) => {
+				const state = get();
+				const resourceToAdd = BigNumber(state[resource].perAction)
+					.times(deltaTime)
+					.dividedBy(1000);
+
+				const newValue = BigNumber(state[resource].value).plus(resourceToAdd);
+
 				set((state) => ({
-					[resource]: state[resource].plus(amount),
+					[resource]: {
+						...state[resource],
+						value: newValue,
+					},
 				}));
 			},
 
-			sellResource: (resource, amount) => {
+			updatePerAction: (resource, perAction) => {
 				set((state) => ({
-					[resource]: state[resource].minus(amount),
+					[resource]: {
+						...state[resource],
+						perAction: BigNumber(state[resource].perAction).times(perAction),
+					},
 				}));
+			},
+
+			sellResource: (resource, amount, addTo) => {
+				set((state) => ({
+					[resource]: {
+						...state[resource],
+						value: BigNumber(state[resource].value).minus(amount),
+					},
+				}));
+
+				if (addTo) {
+					set((state) => ({
+						[addTo]: {
+							...state[addTo],
+							value: BigNumber(state[addTo].value).plus(amount.times(0.5)),
+						},
+					}));
+				}
 			},
 
 			resetResourceStore: () => {
@@ -54,9 +99,9 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 					.filter(([key]) =>
 						Object.values(Resources).includes(key as ResourcesType),
 					)
-					.map(([key, value]) => ({
+					.map(([key]) => ({
 						resource: key as ResourcesType,
-						amount: value as BigNumber,
+						value: get()[key as ResourcesType].value,
 					}));
 			},
 		}),

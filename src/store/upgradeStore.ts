@@ -7,7 +7,7 @@ import { resourceStore } from "@/store/resourceStore.ts";
 type Upgrade = {
 	id: string;
 	name: string;
-	cost: string;
+	cost: BigNumber;
 	multiplier: number;
 	unlocked: boolean;
 	resource: ResourcesType;
@@ -27,7 +27,7 @@ const initialUpgrades: Record<string, Upgrade> = {
 	improvedAxe1: {
 		id: "improvedAxe1",
 		name: "Improved Axe",
-		cost: "10",
+		cost: BigNumber(10),
 		multiplier: 2,
 		unlocked: false,
 		resource: Resources.Wood,
@@ -35,7 +35,7 @@ const initialUpgrades: Record<string, Upgrade> = {
 	improvedPickaxe1: {
 		id: "improvedPickaxe1",
 		name: "Improved Pickaxe",
-		cost: "10",
+		cost: BigNumber(10),
 		multiplier: 2,
 		unlocked: false,
 		resource: Resources.Stone,
@@ -54,7 +54,7 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 				const resources = resourceStore.getState();
 				const upgrade = state.upgrades[id];
 
-				if (BigNumber(upgrade.cost).gt(resources[currency])) {
+				if (BigNumber(upgrade.cost).gt(resources[currency].value)) {
 					throw new Error(`Not enough ${currency} to buy upgrade ${id}`);
 				}
 
@@ -64,6 +64,7 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 				};
 
 				resources.sellResource(currency, BigNumber(upgrade.cost));
+				resources.updatePerAction(currency, upgrade.multiplier);
 
 				set({
 					upgrades: { ...state.upgrades, [id]: updatedUpgrade },

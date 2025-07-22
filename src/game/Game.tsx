@@ -9,13 +9,10 @@ import {
 	ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import BigNumber from "bignumber.js";
-import { useCallback, useEffect } from "react";
-import { Resources } from "@/enums/Resources";
+import { useCallback } from "react";
+import { useGameLoop } from "@/hooks/useGameLoop.ts";
 import { useFlowStore } from "@/store/flowStore";
 import { playerStore } from "@/store/playerStore.ts";
-import { resourceStore } from "@/store/resourceStore";
-import { upgradeStore } from "@/store/upgradeStore";
 import Inventory from "./Inventory";
 import PlayerNode from "./nodes/PlayerNode";
 import ResourceNode from "./nodes/ResourceNode";
@@ -30,9 +27,6 @@ function Flow() {
 		useFlowStore();
 
 	const player = playerStore();
-	const upgrades = upgradeStore();
-
-	const addResource = resourceStore((state) => state.addResource);
 
 	const onConnect = useCallback(
 		(params: Edge | Connection) => {
@@ -64,30 +58,7 @@ function Flow() {
 		[setEdges, player.setCurrentAction],
 	);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			const actionMultiplier = upgrades
-				.getAllUpgrades()
-				.reduce(
-					(acc, upgrade) =>
-						upgrade.unlocked
-							? player.currentAction === upgrade.resource
-								? acc * upgrade.multiplier
-								: acc
-							: acc,
-					1,
-				);
-
-			if (player.currentAction) {
-				addResource(
-					Resources[player.currentAction],
-					BigNumber(actionMultiplier),
-				);
-			}
-		}, 1000);
-
-		return () => clearInterval(interval);
-	}, [addResource, player.currentAction, upgrades.getAllUpgrades]);
+	useGameLoop();
 
 	return (
 		<ReactFlow

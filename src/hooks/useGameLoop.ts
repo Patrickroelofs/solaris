@@ -39,5 +39,5 @@ export function useGameLoop() {
 				cancelAnimationFrame(animationFrameRef.current);
 			}
 		};
-	}, [player.currentAction, resources.addResource]);
+	}, [player.currentAction]);
 }

@@ -63,7 +63,7 @@ export const upgradeStore = create<UpgradeStore & UpgradeActions>()(
 					unlocked: true,
 				};
 
-				resources.sellResource(currency, BigNumber(upgrade.cost));
+				resources.sellResource(currency, upgrade.cost);
 				resources.updatePerAction(currency, upgrade.multiplier);
 
 				set({

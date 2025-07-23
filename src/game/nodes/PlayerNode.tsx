@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CustomHandle from "@/handles/CustomHandle.tsx";
+import { formatBigNumber } from "@/lib/number";
 import { gameStore } from "@/store/gameStore";
 import { playerStore } from "@/store/playerStore.ts";
 import { upgradeStore } from "@/store/upgradeStore";
-import { formatBigNumber } from "@/lib/number";
 
 export default function PlayerNode() {
 	const playerName = playerStore((state) => state.playerName);

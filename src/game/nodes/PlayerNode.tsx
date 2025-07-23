@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CustomHandle from "@/handles/CustomHandle.tsx";
+import { formatBigNumber } from "@/lib/number";
 import { gameStore } from "@/store/gameStore";
 import { playerStore } from "@/store/playerStore.ts";
 import { upgradeStore } from "@/store/upgradeStore";
@@ -68,7 +69,7 @@ export default function PlayerNode() {
 							>
 								<span>{upgrade.name}</span>
 								<span className="text-sm text-gray-300">
-									Cost: {upgrade.cost} {upgrade.resource}
+									Cost: {formatBigNumber(upgrade.cost)} {upgrade.resource}
 								</span>
 							</Button>
 						);

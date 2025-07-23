@@ -9,6 +9,7 @@ import CustomHandle from "@/handles/CustomHandle.tsx";
 import { gameStore } from "@/store/gameStore";
 import { playerStore } from "@/store/playerStore.ts";
 import { upgradeStore } from "@/store/upgradeStore";
+import { formatBigNumber } from "@/lib/number";
 
 export default function PlayerNode() {
 	const playerName = playerStore((state) => state.playerName);
@@ -68,7 +69,7 @@ export default function PlayerNode() {
 							>
 								<span>{upgrade.name}</span>
 								<span className="text-sm text-gray-300">
-									Cost: {upgrade.cost} {upgrade.resource}
+									Cost: {formatBigNumber(upgrade.cost)} {upgrade.resource}
 								</span>
 							</Button>
 						);

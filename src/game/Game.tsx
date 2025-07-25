@@ -16,10 +16,12 @@ import { playerStore } from "@/store/playerStore.ts";
 import Inventory from "./Inventory";
 import PlayerNode from "./nodes/PlayerNode";
 import ResourceNode from "./nodes/ResourceNode";
+import WorkerNode from "./nodes/WorkerNode";
 
 const nodeTypes = {
 	playerNode: PlayerNode,
 	resourceNode: ResourceNode,
+	workerNode: WorkerNode,
 };
 
 function Flow() {

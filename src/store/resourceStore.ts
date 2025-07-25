@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Resources, type ResourcesType } from "@/enums/Resources";
+import { useFlowStore } from "./flowStore";
 
 type Resource = {
 	value: BigNumber;
@@ -23,6 +24,8 @@ type ResourceActions = {
 		resource: ResourcesType;
 		value: BigNumber;
 	}>;
+
+	hireWorker: (allowedConnections: ResourcesType[], cost: number) => void;
 };
 
 const defaultValues = {
@@ -86,6 +89,23 @@ export const resourceStore = create<ResourceStore & ResourceActions>()(
 						},
 					}));
 				}
+			},
+
+			hireWorker: (allowedConnections, cost) => {
+				const workerCost = BigNumber(cost);
+				const currentCoins = BigNumber(get().Coins.value);
+
+				if (currentCoins.isLessThan(workerCost)) {
+					console.warn("Not enough coins to hire a worker.");
+					return;
+				}
+
+				useFlowStore.getState().addNode({
+					id: `worker-${Date.now()}`,
+					type: "workerNode",
+					data: {},
+					position: { x: 0, y: 0 },
+				});
 			},
 
 			resetResourceStore: () => {

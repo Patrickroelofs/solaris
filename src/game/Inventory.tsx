@@ -1,6 +1,7 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import BigNumber from "bignumber.js";
 import { IconMapper } from "@/components/icon-mapper";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
 	ContextMenu,
@@ -30,6 +31,7 @@ function Inventory() {
 				<Tabs defaultValue="inventory">
 					<TabsList>
 						<TabsTrigger value="inventory">Inventory</TabsTrigger>
+						<TabsTrigger value="hire-workers">Hire Workers</TabsTrigger>
 					</TabsList>
 
 					<TabsContent value="inventory">
@@ -77,6 +79,18 @@ function Inventory() {
 									</Tooltip>
 								);
 							})}
+						</div>
+					</TabsContent>
+					<TabsContent value="hire-workers">
+						<div className="flex flex-col gap-4">
+							<p className="text-lg font-bold">Hire Workers</p>
+							<Button
+								onClick={() => {
+									resources.hireWorker([Resources.Wood], 50);
+								}}
+							>
+								Hire Woodcutter
+							</Button>
 						</div>
 					</TabsContent>
 				</Tabs>

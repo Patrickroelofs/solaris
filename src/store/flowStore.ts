@@ -24,6 +24,7 @@ type FlowState = {
 	onEdgesChange: OnEdgesChange;
 	onNodesChange: OnNodesChange;
 	onConnect: OnConnect;
+	addNode: (node: Node<NodeData>) => void;
 
 	resetFlowStore: () => void;
 };
@@ -96,6 +97,12 @@ export const useFlowStore = create<FlowState>()(
 				set((state) => ({
 					edges: addEdge(connection, state.edges),
 				})),
+
+			addNode: (node) => {
+				set((state) => ({
+					nodes: [...state.nodes, node],
+				}));
+			},
 
 			resetFlowStore: () => {
 				set({

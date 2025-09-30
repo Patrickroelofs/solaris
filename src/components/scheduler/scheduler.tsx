@@ -1,9 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format, getISOWeek } from "date-fns";
+import { format, getISOWeek, startOfWeek } from "date-fns";
 import type { PaginatedDocs } from "payload";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Task, User } from "@/src/payload-types.js";
 import SchedulerHeader from "./elements/schedulerHeader.js";
 import SchedulerSidebar from "./elements/schedulerSidebar.js";
@@ -12,32 +12,33 @@ const formatDate = (date: Date, formatStr: string) => {
 	return format(date, formatStr);
 };
 
-const isToday = (date: Date) => {
-	return format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
-};
-
-const addDays = (date: Date, days: number) => {
-	const result = new Date(date);
-	result.setDate(result.getDate() + days);
-	return result;
-};
-
-const startOfWeek = (date: Date) => {
-	const result = new Date(date);
-	const day = result.getDay();
-	const diff = result.getDate() - day;
-	result.setDate(diff);
-	return result;
-};
-
 const weekNumber = (date: Date) => {
 	return getISOWeek(date);
+};
+
+const weekDays = (weekNum: number, year: number) => {
+	const firstDayOfWeek = startOfWeek(new Date(year, 0, 1 + (weekNum - 1) * 7), {
+		weekStartsOn: 1,
+	});
+
+	return Array.from(
+		{ length: 7 },
+		(_, i) => new Date(firstDayOfWeek.getTime() + i * 24 * 60 * 60 * 1000),
+	);
 };
 
 export default function SchedulingTool() {
 	const [currentWeekNumber, setCurrentWeekNumber] = useState(
 		weekNumber(new Date()),
 	);
+
+	const [currentWeekDays, setCurrentWeekDays] = useState(
+		weekDays(currentWeekNumber, new Date().getFullYear()),
+	);
+
+	useEffect(() => {
+		setCurrentWeekDays(weekDays(currentWeekNumber, new Date().getFullYear()));
+	}, [currentWeekNumber]);
 
 	const { data: taskData } = useQuery({
 		queryKey: ["tasks", currentWeekNumber],
@@ -61,51 +62,13 @@ export default function SchedulingTool() {
 		},
 	});
 
-	const [currentWeekStart, setCurrentWeekStart] = useState(
-		startOfWeek(new Date()),
-	);
-
-	const scrollRef = useRef<HTMLDivElement>(null);
-
-	const generateWeekDays = (startDate: Date) => {
-		const days = [];
-		const monday = addDays(startOfWeek(startDate), 1);
-		for (let i = 0; i < 7; i++) {
-			days.push(addDays(monday, i));
-		}
-		return days;
-	};
-
-	const weekDays = generateWeekDays(currentWeekStart);
-
-	const navigateWeek = (direction: "prev" | "next") => {
-		const newDate = addDays(currentWeekStart, direction === "next" ? 7 : -7);
-		setCurrentWeekStart(newDate);
-		setCurrentWeekNumber(weekNumber(newDate));
-	};
-
-	const goToToday = () => {
-		const today = startOfWeek(new Date());
-		setCurrentWeekStart(today);
-	};
-
-	const getMonthYear = () => {
-		const endDate = addDays(currentWeekStart, 6);
-
-		if (currentWeekStart.getMonth() === endDate.getMonth()) {
-			return format(currentWeekStart, "MMMM yyyy");
-		} else {
-			return `${format(currentWeekStart, "MMM")} - ${format(endDate, "MMM yyyy")}`;
-		}
-	};
-
 	return (
 		<div>
 			<SchedulerHeader
-				currentWeekStart={currentWeekStart}
-				navigateWeek={navigateWeek}
-				goToToday={goToToday}
-				getMonthYear={getMonthYear}
+				currentWeekStart={currentWeekDays[0]}
+				setCurrentWeekNumber={setCurrentWeekNumber}
+				// goToToday={goToToday}
+				// getMonthYear={getMonthYear}
 				weekNumber={weekNumber}
 			/>
 
@@ -113,9 +76,9 @@ export default function SchedulingTool() {
 				<SchedulerSidebar users={userData} />
 
 				<div className="flex-1 flex flex-col overflow-hidden">
-					<div className="flex-1 overflow-x-auto" ref={scrollRef}>
+					<div className="flex-1 overflow-x-auto">
 						<div className="border-b sticky top-0 z-10 min-h-24 flex">
-							{weekDays.map((day) => (
+							{currentWeekDays.map((day) => (
 								<div
 									key={day.toISOString()}
 									className="min-w-36 w-1/7 p-3 text-center border-r last:border-r-0 flex-shrink-0 transition-colors"
@@ -124,15 +87,12 @@ export default function SchedulingTool() {
 										{formatDate(day, "EEE")} {formatDate(day, "d")}
 									</div>
 									<div className="text-xs mt-1">{formatDate(day, "MMM")}</div>
-									{isToday(day) && (
-										<div className="text-xs font-semibold mt-1">Today</div>
-									)}
 								</div>
 							))}
 						</div>
 
 						<div className="flex">
-							{weekDays.map((day) => (
+							{currentWeekDays.map((day) => (
 								<div
 									key={day.getDay()}
 									className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}

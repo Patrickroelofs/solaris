@@ -3,10 +3,11 @@ import { Button } from "../../ui/button";
 
 interface SchedulerHeaderProps {
 	currentWeekStart: Date;
-	navigateWeek: (direction: "prev" | "next") => void;
-	goToToday: () => void;
-	getMonthYear: () => string;
+	// navigateWeek: (direction: "prev" | "next") => void;
+	// goToToday: () => void;
+	// getMonthYear: () => string;
 	weekNumber: (date: Date) => number;
+	setCurrentWeekNumber: (weekNum: number) => void;
 }
 
 function SchedulerHeader(props: SchedulerHeaderProps) {
@@ -19,15 +20,19 @@ function SchedulerHeader(props: SchedulerHeaderProps) {
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => props.navigateWeek("prev")}
+								onClick={() =>
+									props.setCurrentWeekNumber(
+										props.weekNumber(props.currentWeekStart) - 1,
+									)
+								}
 								className="h-9"
 							>
 								<ChevronLeft className="h-4 w-4" />
 							</Button>
 							<div className="text-center min-w-[200px]">
-								<div className="text-sm font-medium ">
+								{/* <div className="text-sm font-medium ">
 									{props.getMonthYear()}
-								</div>
+								</div> */}
 								<div className="text-xs">
 									Week {props.weekNumber(props.currentWeekStart)} of{" "}
 									{props.currentWeekStart.getFullYear()}
@@ -36,7 +41,11 @@ function SchedulerHeader(props: SchedulerHeaderProps) {
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => props.navigateWeek("next")}
+								onClick={() =>
+									props.setCurrentWeekNumber(
+										props.weekNumber(props.currentWeekStart) + 1,
+									)
+								}
 								className="h-9"
 							>
 								<ChevronRight className="h-4 w-4" />
@@ -46,7 +55,7 @@ function SchedulerHeader(props: SchedulerHeaderProps) {
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={props.goToToday}
+							// onClick={props.goToToday}
 							className="h-9"
 						>
 							Today

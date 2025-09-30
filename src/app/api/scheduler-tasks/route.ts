@@ -40,8 +40,6 @@ export async function GET(request: NextRequest) {
 		where: whereClause,
 	});
 
-	console.log(tasks);
-
 	return Response.json({ tasks, week, year });
 }
 

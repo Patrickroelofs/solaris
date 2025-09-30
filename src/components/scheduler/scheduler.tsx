@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { format, getISOWeek } from "date-fns";
 import { useRef, useState } from "react";
 import type { Task, User } from "@/src/payload-types.js";
@@ -32,13 +33,28 @@ const weekNumber = (date: Date) => {
 	return getISOWeek(date);
 };
 
-interface SchedulingToolProps {
-	tasks: Task[];
-	users: User[];
-}
+export default function SchedulingTool() {
+	const { data: taskData } = useQuery({
+		queryKey: ["tasks"],
+		queryFn: async () => {
+			const res = await fetch("/api/tasks");
+			const data = await res.json();
 
-export default function SchedulingTool(props: SchedulingToolProps) {
-	const [tasks, _setTasks] = useState<Task[]>(props.tasks || []);
+			return data.tasks as Task[];
+		},
+	});
+
+	const { data: userData } = useQuery({
+		queryKey: ["users"],
+		queryFn: async () => {
+			const res = await fetch("/api/users");
+			const data = await res.json();
+
+			return data.users as User[];
+		},
+	});
+
+	const [tasks, _setTasks] = useState<Task[]>(taskData || []);
 
 	const [currentWeekStart, setCurrentWeekStart] = useState(
 		startOfWeek(new Date()),
@@ -88,7 +104,7 @@ export default function SchedulingTool(props: SchedulingToolProps) {
 			/>
 
 			<div className="flex">
-				<SchedulerSidebar users={props.users} />
+				<SchedulerSidebar users={userData} />
 
 				<div className="flex-1 flex flex-col overflow-hidden">
 					<div className="flex-1 overflow-x-auto" ref={scrollRef}>
@@ -115,43 +131,48 @@ export default function SchedulingTool(props: SchedulingToolProps) {
 									key={day.getDay()}
 									className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}
 								>
-									{props.users.map((user) => {
-										const userTasks = tasks.filter((task) => {
+									{userData ? (
+										userData.map((user) => {
+											const userTasks = tasks.filter((task) => {
+												return (
+													(task.createdBy as User).id === user.id &&
+													format(new Date(task.date), "yyyy-MM-dd") ===
+														format(day, "yyyy-MM-dd")
+												);
+											});
+
 											return (
-												(task.createdBy as User).id === user.id &&
-												format(new Date(task.date), "yyyy-MM-dd") ===
-													format(day, "yyyy-MM-dd")
-											);
-										});
+												<div
+													key={user.id}
+													className={`h-32 border-b p-2 relative transition-all duration-200`}
+												>
+													{userTasks.map((task) => {
+														const taskHeight = (task.duration / 8) * 100;
 
-										return (
-											<div
-												key={user.id}
-												className={`h-32 border-b p-2 relative transition-all duration-200`}
-											>
-												{userTasks.map((task) => {
-													const taskHeight = (task.duration / 8) * 100;
-
-													return (
-														<div
-															key={task.id}
-															className="bg-blue-500 rounded-lg text-white text-xs p-2"
-															style={{
-																height: `${taskHeight}%`,
-															}}
-														>
-															<div className="font-medium leading-tight overflow-hidden">
-																<div className="truncate text-xs">
-																	{task.title}
+														return (
+															<div
+																key={task.id}
+																className="bg-blue-500 rounded-lg text-white text-xs p-2"
+																style={{
+																	height: `${taskHeight}%`,
+																}}
+															>
+																<div className="font-medium leading-tight overflow-hidden">
+																	<div className="truncate text-xs">
+																		{task.title}
+																	</div>
+																	<span>{task.duration}h</span>
 																</div>
-																<span>{task.duration}h</span>
 															</div>
-														</div>
-													);
-												})}
-											</div>
-										);
-									})}
+														);
+													})}
+												</div>
+											);
+										})
+									) : (
+										// TODO: Properly handling loading
+										<div className="p-2">Loading...</div>
+									)}
 								</div>
 							))}
 						</div>

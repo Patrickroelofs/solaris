@@ -1,10 +1,15 @@
 import type { User } from "@/src/payload-types.js";
 
 interface SchedulerSidebarProps {
-	users: User[];
+	users: User[] | undefined;
 }
 
 function SchedulerSidebar(props: SchedulerSidebarProps) {
+	if (props.users === undefined) {
+		// TODO: Handle undefined case properly
+		return <p>Loading...</p>;
+	}
+
 	return (
 		<div className="w-48 border-r flex flex-col">
 			<div className="flex-1 overflow-y-auto mt-24">

@@ -3,20 +3,27 @@ import {
 	HydrationBoundary,
 	QueryClient,
 } from "@tanstack/react-query";
+import { getISOWeek } from "date-fns/getISOWeek";
 import SchedulingTool from "@/src/components/scheduler/scheduler";
 import { payload } from "@/src/lib/getPayloadConfig";
+import type { Task } from "@/src/payload-types";
 
 export default async function HomePage() {
 	const queryClient = new QueryClient();
 
-	await queryClient.prefetchQuery({
-		queryKey: ["tasks"],
-		queryFn: async () => {
-			const data = await payload.find({
-				collection: "tasks",
-			});
+	const weekNumber = () => {
+		return getISOWeek(new Date());
+	};
 
-			return data.docs;
+	await queryClient.prefetchQuery({
+		queryKey: ["tasks", weekNumber()],
+		queryFn: async () => {
+			const res = await fetch(
+				`/api/scheduler-tasks?weekNumber=${weekNumber()}&year=${new Date().getFullYear()}`,
+			);
+			const data = await res.json();
+
+			return data.tasks as Task[];
 		},
 	});
 

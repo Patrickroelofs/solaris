@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { format, getISOWeek } from "date-fns";
+import type { PaginatedDocs } from "payload";
 import { useRef, useState } from "react";
 import type { Task, User } from "@/src/payload-types.js";
 import SchedulerHeader from "./elements/schedulerHeader.js";
@@ -34,27 +35,31 @@ const weekNumber = (date: Date) => {
 };
 
 export default function SchedulingTool() {
+	const [currentWeekNumber, setCurrentWeekNumber] = useState(
+		weekNumber(new Date()),
+	);
+
 	const { data: taskData } = useQuery({
-		queryKey: ["tasks"],
+		queryKey: ["tasks", currentWeekNumber],
 		queryFn: async () => {
-			const res = await fetch("/api/tasks");
+			const res = await fetch(
+				`/api/scheduler-tasks?week=${currentWeekNumber}&year=${new Date().getFullYear()}`,
+			);
 			const data = await res.json();
 
-			return data.tasks as Task[];
+			return data.tasks as PaginatedDocs<Task>;
 		},
 	});
 
 	const { data: userData } = useQuery({
 		queryKey: ["users"],
 		queryFn: async () => {
-			const res = await fetch("/api/users");
+			const res = await fetch("/api/scheduler-users");
 			const data = await res.json();
 
 			return data.users as User[];
 		},
 	});
-
-	const [tasks, _setTasks] = useState<Task[]>(taskData || []);
 
 	const [currentWeekStart, setCurrentWeekStart] = useState(
 		startOfWeek(new Date()),
@@ -76,6 +81,7 @@ export default function SchedulingTool() {
 	const navigateWeek = (direction: "prev" | "next") => {
 		const newDate = addDays(currentWeekStart, direction === "next" ? 7 : -7);
 		setCurrentWeekStart(newDate);
+		setCurrentWeekNumber(weekNumber(newDate));
 	};
 
 	const goToToday = () => {
@@ -131,9 +137,9 @@ export default function SchedulingTool() {
 									key={day.getDay()}
 									className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}
 								>
-									{userData ? (
+									{userData && taskData ? (
 										userData.map((user) => {
-											const userTasks = tasks.filter((task) => {
+											const userTasks = taskData.docs.filter((task) => {
 												return (
 													(task.createdBy as User).id === user.id &&
 													format(new Date(task.date), "yyyy-MM-dd") ===

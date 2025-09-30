@@ -10,20 +10,6 @@ export const Tasks: CollectionConfig = {
 			name: "createdBy",
 			type: "relationship",
 			relationTo: "users",
-			admin: {
-				disableBulkEdit: true,
-				readOnly: true,
-			},
-			hooks: {
-				beforeChange: [
-					async ({ req, data }) => {
-						if (req.user) {
-							return req.user.id;
-						}
-						return data;
-					},
-				],
-			},
 		},
 		{
 			name: "title",

@@ -5,6 +5,7 @@ import { format, getISOWeek, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import { getTasksForWeek } from "@/src/app/actions/getTasksForWeek.js";
 import type { Person, Schedule } from "@/src/payload-types.js";
+import SchedulerAddTaskWindow from "./elements/schedulerAddTaskWindow.js";
 import SchedulerHeader from "./elements/schedulerHeader.js";
 import SchedulerSidebar from "./elements/schedulerSidebar.js";
 
@@ -86,6 +87,7 @@ export default function SchedulingTool({
 				selectedWeekNumber={selectedWeekNumber}
 				selectedYearNumber={selectedYearNumber}
 				goToToday={goToToday}
+				addTaskSlot={<SchedulerAddTaskWindow people={scheduleData?.people} />}
 			/>
 
 			<div className="flex">
@@ -113,7 +115,8 @@ export default function SchedulingTool({
 									key={day.getDay()}
 									className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}
 								>
-									{scheduleData && taskData ? (
+									{scheduleData &&
+										taskData &&
 										scheduleData.people?.map((person) => {
 											if (typeof person === "number") {
 												throw new Error(
@@ -156,11 +159,7 @@ export default function SchedulingTool({
 													})}
 												</div>
 											);
-										})
-									) : (
-										// TODO: Properly handling loading
-										<div className="p-2">Loading...</div>
-									)}
+										})}
 								</div>
 							))}
 						</div>

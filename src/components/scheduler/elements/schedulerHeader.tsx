@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../../ui/button";
+import SchedulerAddTaskWindow from "./schedulerAddTaskWindow";
 
 interface SchedulerHeaderProps {
 	goToToday: () => void;
@@ -7,6 +8,7 @@ interface SchedulerHeaderProps {
 	setSelectedYearNumber: (yearNum: number) => void;
 	selectedWeekNumber: number;
 	selectedYearNumber: number;
+	addTaskSlot: React.ReactNode;
 }
 
 function SchedulerHeader(props: SchedulerHeaderProps) {
@@ -64,6 +66,7 @@ function SchedulerHeader(props: SchedulerHeaderProps) {
 						>
 							Today
 						</Button>
+						{props.addTaskSlot}
 					</div>
 				</div>
 			</div>

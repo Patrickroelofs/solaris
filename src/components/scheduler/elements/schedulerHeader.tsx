@@ -1,6 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../../ui/button";
-import SchedulerAddTaskWindow from "./schedulerAddTaskWindow";
 
 interface SchedulerHeaderProps {
 	goToToday: () => void;

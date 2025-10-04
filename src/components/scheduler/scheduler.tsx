@@ -1,10 +1,18 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, getISOWeek, startOfWeek } from "date-fns";
+import { DeleteIcon, EditIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { deleteTaskAction } from "@/src/app/actions/deleteTask.js";
 import { getTasksForWeek } from "@/src/app/actions/getTasksForWeek.js";
 import type { Person, Schedule } from "@/src/payload-types.js";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuTrigger,
+} from "../ui/context-menu.js";
 import { Spinner } from "../ui/spinner.js";
 import SchedulerAddTaskWindow from "./elements/schedulerAddTaskWindow.js";
 import SchedulerHeader from "./elements/schedulerHeader.js";
@@ -38,6 +46,8 @@ export default function SchedulingTool({
 	getSchedule,
 	scheduleId,
 }: SchedulingToolProps) {
+	const queryClient = useQueryClient();
+
 	const [selectedYearNumber, setSelectedYearNumber] = useState(
 		new Date().getFullYear(),
 	);
@@ -73,6 +83,16 @@ export default function SchedulingTool({
 			});
 
 			return tasks;
+		},
+	});
+
+	const deleteTaskMutation = useMutation({
+		mutationFn: deleteTaskAction,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["tasks"] });
+		},
+		onError: (error) => {
+			console.error("Failed to delete task:", error);
 		},
 	});
 
@@ -150,20 +170,36 @@ export default function SchedulingTool({
 																const taskHeight = (task.duration / 8) * 100;
 
 																return (
-																	<div
-																		key={task.id}
-																		className="bg-blue-500 rounded-lg text-white text-xs p-2"
-																		style={{
-																			height: `${taskHeight}%`,
-																		}}
-																	>
-																		<div className="font-medium leading-tight overflow-hidden">
-																			<div className="truncate text-xs">
-																				{task.title}
+																	<ContextMenu key={task.id}>
+																		<ContextMenuTrigger>
+																			<div
+																				className="bg-blue-500 rounded-lg text-white text-xs p-2"
+																				style={{
+																					height: `${taskHeight}%`,
+																				}}
+																			>
+																				<div className="font-medium leading-tight overflow-hidden">
+																					<div className="truncate text-xs">
+																						{task.title}
+																					</div>
+																					<span>{task.duration}h</span>
+																				</div>
 																			</div>
-																			<span>{task.duration}h</span>
-																		</div>
-																	</div>
+																		</ContextMenuTrigger>
+																		<ContextMenuContent>
+																			<ContextMenuItem
+																				variant="destructive"
+																				onClick={() =>
+																					deleteTaskMutation.mutate({
+																						id: task.id,
+																					})
+																				}
+																			>
+																				<DeleteIcon />
+																				Delete
+																			</ContextMenuItem>
+																		</ContextMenuContent>
+																	</ContextMenu>
 																);
 															})}
 														</div>

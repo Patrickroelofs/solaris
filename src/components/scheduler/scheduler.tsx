@@ -5,6 +5,7 @@ import { format, getISOWeek, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import { getTasksForWeek } from "@/src/app/actions/getTasksForWeek.js";
 import type { Person, Schedule } from "@/src/payload-types.js";
+import { Spinner } from "../ui/spinner.js";
 import SchedulerAddTaskWindow from "./elements/schedulerAddTaskWindow.js";
 import SchedulerHeader from "./elements/schedulerHeader.js";
 import SchedulerSidebar from "./elements/schedulerSidebar.js";
@@ -62,7 +63,7 @@ export default function SchedulingTool({
 		},
 	});
 
-	const { data: taskData } = useQuery({
+	const { data: taskData, isLoading: isLoadingTasks } = useQuery({
 		queryKey: ["tasks", selectedWeekNumber],
 		queryFn: async () => {
 			const tasks = await getTasksForWeek({
@@ -95,74 +96,84 @@ export default function SchedulingTool({
 
 				<div className="flex-1 flex flex-col overflow-hidden">
 					<div className="flex-1 overflow-x-auto">
-						<div className="border-b sticky top-0 z-10 min-h-24 flex">
-							{currentWeekDays.map((day) => (
-								<div
-									key={day.toISOString()}
-									className="min-w-36 w-1/7 p-3 text-center border-r last:border-r-0 flex-shrink-0 transition-colors"
-								>
-									<div className="text-sm font-medium">
-										{formatDate(day, "EEE")} {formatDate(day, "d")}
-									</div>
-									<div className="text-xs mt-1">{formatDate(day, "MMM")}</div>
+						{isLoadingTasks ? (
+							<div className="w-full h-full flex justify-center items-center">
+								<Spinner className="size-8" />
+							</div>
+						) : (
+							<>
+								<div className="border-b sticky top-0 z-10 min-h-24 flex">
+									{currentWeekDays.map((day) => (
+										<div
+											key={day.toISOString()}
+											className="min-w-36 w-1/7 p-3 text-center border-r last:border-r-0 flex-shrink-0 transition-colors"
+										>
+											<div className="text-sm font-medium">
+												{formatDate(day, "EEE")} {formatDate(day, "d")}
+											</div>
+											<div className="text-xs mt-1">
+												{formatDate(day, "MMM")}
+											</div>
+										</div>
+									))}
 								</div>
-							))}
-						</div>
 
-						<div className="flex">
-							{currentWeekDays.map((day) => (
-								<div
-									key={day.getDay()}
-									className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}
-								>
-									{scheduleData &&
-										taskData &&
-										scheduleData.people?.map((person) => {
-											if (typeof person === "number") {
-												throw new Error(
-													"Person is a number, expected Person object",
-												);
-											}
-
-											const userTasks = taskData.filter((task) => {
-												return (
-													(task.createdBy as Person).id === person.id &&
-													format(new Date(task.date), "yyyy-MM-dd") ===
-														format(day, "yyyy-MM-dd")
-												);
-											});
-
-											return (
-												<div
-													key={person.id}
-													className={`h-32 border-b p-2 relative transition-all duration-200`}
-												>
-													{userTasks.map((task) => {
-														const taskHeight = (task.duration / 8) * 100;
-
-														return (
-															<div
-																key={task.id}
-																className="bg-blue-500 rounded-lg text-white text-xs p-2"
-																style={{
-																	height: `${taskHeight}%`,
-																}}
-															>
-																<div className="font-medium leading-tight overflow-hidden">
-																	<div className="truncate text-xs">
-																		{task.title}
-																	</div>
-																	<span>{task.duration}h</span>
-																</div>
-															</div>
+								<div className="flex">
+									{currentWeekDays.map((day) => (
+										<div
+											key={day.getDay()}
+											className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}
+										>
+											{scheduleData &&
+												taskData &&
+												scheduleData.people?.map((person) => {
+													if (typeof person === "number") {
+														throw new Error(
+															"Person is a number, expected Person object",
 														);
-													})}
-												</div>
-											);
-										})}
+													}
+
+													const userTasks = taskData.filter((task) => {
+														return (
+															(task.createdBy as Person).id === person.id &&
+															format(new Date(task.date), "yyyy-MM-dd") ===
+																format(day, "yyyy-MM-dd")
+														);
+													});
+
+													return (
+														<div
+															key={person.id}
+															className={`h-32 border-b p-2 relative transition-all duration-200`}
+														>
+															{userTasks.map((task) => {
+																const taskHeight = (task.duration / 8) * 100;
+
+																return (
+																	<div
+																		key={task.id}
+																		className="bg-blue-500 rounded-lg text-white text-xs p-2"
+																		style={{
+																			height: `${taskHeight}%`,
+																		}}
+																	>
+																		<div className="font-medium leading-tight overflow-hidden">
+																			<div className="truncate text-xs">
+																				{task.title}
+																			</div>
+																			<span>{task.duration}h</span>
+																		</div>
+																	</div>
+																);
+															})}
+														</div>
+													);
+												})}
+										</div>
+									))}
 								</div>
-							))}
-						</div>
+							</>
+						)}
 					</div>
 				</div>
 			</div>

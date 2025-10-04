@@ -9,11 +9,5 @@ export const Users: CollectionConfig = {
 	access: {
 		read: () => true,
 	},
-	fields: [
-		{
-			name: "name",
-			type: "text",
-			required: true,
-		},
-	],
+	fields: [],
 };

@@ -5,11 +5,14 @@ export const Tasks: CollectionConfig = {
 	admin: {
 		group: "Management",
 	},
+	access: {
+		read: () => true,
+	},
 	fields: [
 		{
 			name: "createdBy",
 			type: "relationship",
-			relationTo: "users",
+			relationTo: "people",
 		},
 		{
 			name: "title",
@@ -20,11 +23,7 @@ export const Tasks: CollectionConfig = {
 			name: "duration",
 			type: "number",
 			required: true,
-		},
-		{
-			name: "color",
-			type: "text",
-			required: true,
+			min: 0.5,
 		},
 		{
 			name: "date",
@@ -35,6 +34,12 @@ export const Tasks: CollectionConfig = {
 					pickerAppearance: "dayOnly",
 				},
 			},
+		},
+		{
+			name: "schedule",
+			type: "relationship",
+			relationTo: "schedules",
+			required: true,
 		},
 	],
 };

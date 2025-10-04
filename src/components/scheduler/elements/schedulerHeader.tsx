@@ -2,12 +2,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../../ui/button";
 
 interface SchedulerHeaderProps {
-	currentWeekStart: Date;
-	// navigateWeek: (direction: "prev" | "next") => void;
-	// goToToday: () => void;
-	// getMonthYear: () => string;
-	weekNumber: (date: Date) => number;
-	setCurrentWeekNumber: (weekNum: number) => void;
+	goToToday: () => void;
+	setSelectedWeekNumber: (weekNum: number) => void;
+	setSelectedYearNumber: (yearNum: number) => void;
+	selectedWeekNumber: number;
+	selectedYearNumber: number;
 }
 
 function SchedulerHeader(props: SchedulerHeaderProps) {
@@ -20,32 +19,37 @@ function SchedulerHeader(props: SchedulerHeaderProps) {
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() =>
-									props.setCurrentWeekNumber(
-										props.weekNumber(props.currentWeekStart) - 1,
-									)
-								}
+								onClick={() => {
+									props.setSelectedWeekNumber(props.selectedWeekNumber - 1);
+
+									if (props.selectedWeekNumber < 1) {
+										props.setSelectedWeekNumber(52);
+										props.setSelectedYearNumber(props.selectedYearNumber - 1);
+									}
+								}}
 								className="h-9"
 							>
 								<ChevronLeft className="h-4 w-4" />
 							</Button>
 							<div className="text-center min-w-[200px]">
-								{/* <div className="text-sm font-medium ">
-									{props.getMonthYear()}
-								</div> */}
+								<div className="text-sm font-medium ">
+									{props.selectedYearNumber}
+								</div>
 								<div className="text-xs">
-									Week {props.weekNumber(props.currentWeekStart)} of{" "}
-									{props.currentWeekStart.getFullYear()}
+									Week {props.selectedWeekNumber} of {props.selectedYearNumber}
 								</div>
 							</div>
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() =>
-									props.setCurrentWeekNumber(
-										props.weekNumber(props.currentWeekStart) + 1,
-									)
-								}
+								onClick={() => {
+									props.setSelectedWeekNumber(props.selectedWeekNumber + 1);
+
+									if (props.selectedWeekNumber === 52) {
+										props.setSelectedWeekNumber(1);
+										props.setSelectedYearNumber(props.selectedYearNumber + 1);
+									}
+								}}
 								className="h-9"
 							>
 								<ChevronRight className="h-4 w-4" />
@@ -55,7 +59,7 @@ function SchedulerHeader(props: SchedulerHeaderProps) {
 						<Button
 							variant="outline"
 							size="sm"
-							// onClick={props.goToToday}
+							onClick={props.goToToday}
 							className="h-9"
 						>
 							Today

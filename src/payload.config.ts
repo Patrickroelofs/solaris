@@ -4,6 +4,8 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 import sharp from "sharp";
+import { People } from "./collections/People";
+import { Schedules } from "./collections/Schedules";
 import { Tasks } from "./collections/Tasks";
 import { Users } from "./collections/Users";
 
@@ -21,7 +23,7 @@ export default buildConfig({
 			baseDir: path.resolve(dirname),
 		},
 	},
-	collections: [Users, Tasks],
+	collections: [Users, People, Schedules, Tasks],
 	editor: lexicalEditor(),
 	secret: process.env.PAYLOAD_SECRET || "",
 	typescript: {

@@ -68,14 +68,25 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    people: Person;
+    schedules: Schedule;
     tasks: Task;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    people: {
+      relatedSchedules: 'schedules';
+    };
+    schedules: {
+      relatedTasks: 'tasks';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    people: PeopleSelect<false> | PeopleSelect<true>;
+    schedules: SchedulesSelect<false> | SchedulesSelect<true>;
     tasks: TasksSelect<false> | TasksSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -119,7 +130,6 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  name: string;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -140,15 +150,46 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "people".
+ */
+export interface Person {
+  id: number;
+  name: string;
+  relatedSchedules?: {
+    docs?: (number | Schedule)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schedules".
+ */
+export interface Schedule {
+  id: number;
+  name: string;
+  people?: (number | Person)[] | null;
+  relatedTasks?: {
+    docs?: (number | Task)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tasks".
  */
 export interface Task {
   id: number;
-  createdBy?: (number | null) | User;
+  createdBy?: (number | null) | Person;
   title: string;
   duration: number;
-  color: string;
   date: string;
+  schedule: number | Schedule;
   updatedAt: string;
   createdAt: string;
 }
@@ -162,6 +203,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'people';
+        value: number | Person;
+      } | null)
+    | ({
+        relationTo: 'schedules';
+        value: number | Schedule;
       } | null)
     | ({
         relationTo: 'tasks';
@@ -214,7 +263,6 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  name?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -234,14 +282,35 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "people_select".
+ */
+export interface PeopleSelect<T extends boolean = true> {
+  name?: T;
+  relatedSchedules?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schedules_select".
+ */
+export interface SchedulesSelect<T extends boolean = true> {
+  name?: T;
+  people?: T;
+  relatedTasks?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tasks_select".
  */
 export interface TasksSelect<T extends boolean = true> {
   createdBy?: T;
   title?: T;
   duration?: T;
-  color?: T;
   date?: T;
+  schedule?: T;
   updatedAt?: T;
   createdAt?: T;
 }

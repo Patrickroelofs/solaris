@@ -2,9 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { format, getISOWeek, startOfWeek } from "date-fns";
-import type { PaginatedDocs } from "payload";
-import { useEffect, useRef, useState } from "react";
-import type { Task, User } from "@/src/payload-types.js";
+import { useEffect, useState } from "react";
+import { getTasksForWeek } from "@/src/app/actions/getTasksForWeek.js";
+import type { Person, Schedule } from "@/src/payload-types.js";
 import SchedulerHeader from "./elements/schedulerHeader.js";
 import SchedulerSidebar from "./elements/schedulerSidebar.js";
 
@@ -27,53 +27,69 @@ const weekDays = (weekNum: number, year: number) => {
 	);
 };
 
-export default function SchedulingTool() {
-	const [currentWeekNumber, setCurrentWeekNumber] = useState(
+interface SchedulingToolProps {
+	getSchedule: (id: number) => Promise<Schedule>;
+	scheduleId: number;
+}
+
+export default function SchedulingTool({
+	getSchedule,
+	scheduleId,
+}: SchedulingToolProps) {
+	const [selectedYearNumber, setSelectedYearNumber] = useState(
+		new Date().getFullYear(),
+	);
+
+	const [selectedWeekNumber, setSelectedWeekNumber] = useState(
 		weekNumber(new Date()),
 	);
 
 	const [currentWeekDays, setCurrentWeekDays] = useState(
-		weekDays(currentWeekNumber, new Date().getFullYear()),
+		weekDays(selectedWeekNumber, new Date().getFullYear()),
 	);
 
 	useEffect(() => {
-		setCurrentWeekDays(weekDays(currentWeekNumber, new Date().getFullYear()));
-	}, [currentWeekNumber]);
+		setCurrentWeekDays(weekDays(selectedWeekNumber, new Date().getFullYear()));
+	}, [selectedWeekNumber]);
+
+	const { data: scheduleData } = useQuery({
+		queryKey: ["schedule", scheduleId],
+		queryFn: async () => {
+			const data = await getSchedule(scheduleId);
+
+			return data;
+		},
+	});
 
 	const { data: taskData } = useQuery({
-		queryKey: ["tasks", currentWeekNumber],
+		queryKey: ["tasks", selectedWeekNumber],
 		queryFn: async () => {
-			const res = await fetch(
-				`/api/scheduler-tasks?week=${currentWeekNumber}&year=${new Date().getFullYear()}`,
-			);
-			const data = await res.json();
+			const tasks = await getTasksForWeek({
+				selectedYearNumber: selectedYearNumber,
+				selectedWeekNumber: selectedWeekNumber,
+				scheduleId: scheduleId,
+			});
 
-			return data.tasks as PaginatedDocs<Task>;
+			return tasks;
 		},
 	});
 
-	const { data: userData } = useQuery({
-		queryKey: ["users"],
-		queryFn: async () => {
-			const res = await fetch("/api/scheduler-users");
-			const data = await res.json();
-
-			return data.users as User[];
-		},
-	});
+	const goToToday = () => {
+		setSelectedWeekNumber(weekNumber(new Date()));
+	};
 
 	return (
 		<div>
 			<SchedulerHeader
-				currentWeekStart={currentWeekDays[0]}
-				setCurrentWeekNumber={setCurrentWeekNumber}
-				// goToToday={goToToday}
-				// getMonthYear={getMonthYear}
-				weekNumber={weekNumber}
+				setSelectedWeekNumber={setSelectedWeekNumber}
+				setSelectedYearNumber={setSelectedYearNumber}
+				selectedWeekNumber={selectedWeekNumber}
+				selectedYearNumber={selectedYearNumber}
+				goToToday={goToToday}
 			/>
 
 			<div className="flex">
-				<SchedulerSidebar users={userData} />
+				<SchedulerSidebar people={scheduleData?.people} />
 
 				<div className="flex-1 flex flex-col overflow-hidden">
 					<div className="flex-1 overflow-x-auto">
@@ -97,11 +113,17 @@ export default function SchedulingTool() {
 									key={day.getDay()}
 									className={`w-1/7 border-r last:border-r-0 flex-shrink-0`}
 								>
-									{userData && taskData ? (
-										userData.map((user) => {
-											const userTasks = taskData.docs.filter((task) => {
+									{scheduleData && taskData ? (
+										scheduleData.people?.map((person) => {
+											if (typeof person === "number") {
+												throw new Error(
+													"Person is a number, expected Person object",
+												);
+											}
+
+											const userTasks = taskData.filter((task) => {
 												return (
-													(task.createdBy as User).id === user.id &&
+													(task.createdBy as Person).id === person.id &&
 													format(new Date(task.date), "yyyy-MM-dd") ===
 														format(day, "yyyy-MM-dd")
 												);
@@ -109,7 +131,7 @@ export default function SchedulingTool() {
 
 											return (
 												<div
-													key={user.id}
+													key={person.id}
 													className={`h-32 border-b p-2 relative transition-all duration-200`}
 												>
 													{userTasks.map((task) => {

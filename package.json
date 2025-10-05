@@ -18,7 +18,8 @@
     "migrate:down": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:down",
     "migrate:refresh": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:refresh",
     "migrate:reset": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:reset",
-    "migrate:fresh": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:fresh"
+    "migrate:fresh": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:fresh",
+    "ci": "payload migrate && pnpm build"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

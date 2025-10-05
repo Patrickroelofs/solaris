@@ -7,7 +7,7 @@ import { getSchedule } from "@/src/app/actions/getSchedule";
 import SchedulingTool from "@/src/components/scheduler/scheduler";
 
 interface SchedulePageProps {
-	params: { schedule: string };
+	params: Promise<{ schedule: string }>;
 }
 
 export default async function SchedulePage({ params }: SchedulePageProps) {

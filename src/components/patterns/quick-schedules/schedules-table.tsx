@@ -1,8 +1,10 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { Calendar, ChevronRightIcon, Trash } from "lucide-react";
+import { Calendar, CalendarPlus, ChevronRightIcon, Trash } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -18,6 +20,7 @@ import {
 } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
 import {
   Card,
   CardAction,
@@ -27,8 +30,14 @@ import {
   CardTitle,
 } from "../../ui/card";
 import AddSchedulerDialog from "./add-scheduler-dialog";
+import InvitePersonDialog from "./invite-person-dialog";
 
 export function SchedulesTable() {
+  const [openAddScheduleDialog, setOpenAddScheduleDialog] = useState(false);
+  const [openInviteDialog, setOpenInviteDialog] = useState(false);
+  const [currentScheduleId, setCurrentScheduleId] =
+    useState<Id<"schedules"> | null>(null);
+
   const deleteSchedule = useMutation(api.schedules.deleteSchedule);
   const data = useQuery(api.schedules.getUserSchedule);
 
@@ -38,7 +47,12 @@ export function SchedulesTable() {
         <CardTitle>Schedules</CardTitle>
         <CardDescription>Manage your schedules</CardDescription>
         <CardAction>
-          <AddSchedulerDialog />
+          <Button
+            variant="outline"
+            onClick={() => setOpenAddScheduleDialog(true)}
+          >
+            <CalendarPlus />
+          </Button>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -69,6 +83,15 @@ export function SchedulesTable() {
                 </ContextMenuTrigger>
                 <ContextMenuContent>
                   <ContextMenuItem
+                    onClick={() => {
+                      setOpenInviteDialog(true);
+                      setCurrentScheduleId(schedule._id);
+                    }}
+                  >
+                    <CalendarPlus className="size-4" />
+                    Add Person to Schedule
+                  </ContextMenuItem>
+                  <ContextMenuItem
                     variant="destructive"
                     onClick={() => {
                       deleteSchedule({
@@ -89,6 +112,16 @@ export function SchedulesTable() {
           </div>
         )}
       </CardContent>
+
+      <AddSchedulerDialog
+        open={openAddScheduleDialog}
+        setOpen={setOpenAddScheduleDialog}
+      />
+      <InvitePersonDialog
+        open={openInviteDialog}
+        setOpen={setOpenInviteDialog}
+        scheduleId={currentScheduleId}
+      />
     </Card>
   );
 }

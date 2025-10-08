@@ -3,11 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation } from "convex/react";
-import { CalendarPlus } from "lucide-react";
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -16,7 +16,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../../ui/dialog";
 import { Form, FormField } from "../../ui/form";
 import { Input } from "../../ui/input";
@@ -24,31 +23,35 @@ import { Label } from "../../ui/label";
 import { Separator } from "../../ui/separator";
 
 const FormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  email: z.email("Invalid email").min(1, "Email is required"),
 });
 
-interface AddSchedulerDialogProps {
+interface InvitePersonDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  scheduleId?: Id<"schedules"> | null;
 }
 
-export default function AddSchedulerDialog({
+export default function InvitePersonDialog({
   open,
   setOpen,
-}: AddSchedulerDialogProps) {
-  const createSchedule = useMutation(api.schedules.createSchedule);
+  scheduleId,
+}: InvitePersonDialogProps) {
+  const addUserToSchedule = useMutation(api.schedules.addUserToSchedule);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      title: "",
+      email: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
-    await createSchedule({
-      name: values.title,
-      people: [],
+    if (!scheduleId) return;
+
+    await addUserToSchedule({
+      scheduleId,
+      email: values.email,
     });
 
     form.reset();
@@ -59,14 +62,14 @@ export default function AddSchedulerDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent aria-description="Add a new schedule to the scheduler">
+      <DialogContent aria-description="Invite a person to the schedule">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
-              <DialogTitle>Create new Schedule</DialogTitle>
+              <DialogTitle>Invite a Person</DialogTitle>
 
               <DialogDescription>
-                Fill in the form below to create a new schedule.
+                Fill in the form below to invite a new person.
               </DialogDescription>
 
               <div className="grid gap-4">
@@ -74,10 +77,10 @@ export default function AddSchedulerDialog({
 
                 <FormField
                   control={form.control}
-                  name="title"
+                  name="email"
                   render={({ field }) => (
                     <div className="grid gap-3">
-                      <Label htmlFor={titleId}>Title</Label>
+                      <Label htmlFor={titleId}>Email</Label>
                       <Input id={titleId} {...field} />
                     </div>
                   )}
@@ -90,7 +93,7 @@ export default function AddSchedulerDialog({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Create Schedule</Button>
+              <Button type="submit">Invite user</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -65,3 +65,35 @@ export const deleteSchedule = mutation({
     await ctx.db.delete(args.scheduleId);
   },
 });
+
+export const addUserToSchedule = mutation({
+  args: {
+    scheduleId: v.id("schedules"),
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const schedule = await ctx.db.get(args.scheduleId);
+
+    if (!schedule) {
+      throw new Error("Schedule not found");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.email))
+      .first();
+
+    console.log(user);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (schedule.people.includes(user._id)) {
+      throw new Error("User already in schedule");
+    }
+
+    const updatedPeople = [...schedule.people, user._id];
+    await ctx.db.patch(args.scheduleId, { people: updatedPeople });
+  },
+});

@@ -31,7 +31,10 @@ export const createSchedule = mutation({
     const scheduleId = await ctx.db.insert("schedules", {
       name: args.name,
       createdBy: userId,
-      people: args.people,
+      people: [
+        userId,
+        ...args.people.filter((personId) => personId !== userId),
+      ],
     });
 
     return scheduleId;

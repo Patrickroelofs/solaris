@@ -97,3 +97,27 @@ export const addUserToSchedule = mutation({
     await ctx.db.patch(args.scheduleId, { people: updatedPeople });
   },
 });
+
+export const getScheduleUsers = query({
+  args: {
+    scheduleId: v.id("schedules"),
+  },
+  handler: async (ctx, args) => {
+    const schedule = await ctx.db.get(args.scheduleId);
+
+    if (!schedule) {
+      throw new Error("Schedule not found");
+    }
+
+    const users = await ctx.db
+      .query("users")
+      .filter((q) =>
+        q.or(
+          ...schedule.people.map((personId) => q.eq(q.field("_id"), personId)),
+        ),
+      )
+      .collect();
+
+    return users;
+  },
+});

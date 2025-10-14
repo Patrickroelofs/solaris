@@ -15,5 +15,5 @@ export default defineSchema({
     date: v.string(),
     schedule: v.id("schedules"),
     assignedTo: v.id("users"),
-  }),
+  }).index("schedule", ["schedule"]),
 });

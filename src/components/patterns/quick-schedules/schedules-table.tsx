@@ -68,7 +68,7 @@ export function SchedulesTable() {
               <ContextMenu key={schedule._id}>
                 <ContextMenuTrigger asChild>
                   <Item key={schedule._id} variant="outline" size="sm" asChild>
-                    <Link href="#">
+                    <Link href={`/scheduler/${schedule._id}`}>
                       <ItemMedia>
                         <Calendar className="size-5" />
                       </ItemMedia>

@@ -23,9 +23,7 @@ export function AppDashboard({ children }: AppDashboardProps) {
         }}
         variant="inset"
       />
-      <SidebarInset>
-        <div>{children}</div>
-      </SidebarInset>
+      <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
 }

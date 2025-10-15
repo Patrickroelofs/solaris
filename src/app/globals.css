@@ -164,3 +164,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .tiny-scrollbar {
+    scrollbar-width: thin;
+  }
+}

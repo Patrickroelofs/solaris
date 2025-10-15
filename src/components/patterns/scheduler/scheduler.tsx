@@ -131,10 +131,13 @@ export default function SchedulingTool({ scheduleId }: SchedulingToolProps) {
                           return (
                             <div
                               key={person._id}
-                              className={`h-32 border-b p-2 relative transition-all duration-200`}
+                              className={`h-32 overflow-auto tiny-scrollbar flex flex-col gap-1 border-b p-2 relative transition-all duration-200`}
                             >
                               {userTasks.map((task) => {
-                                const taskHeight = (task.duration / 8) * 100;
+                                const taskHeight = Math.max(
+                                  24,
+                                  24 * (task.duration / 2),
+                                );
 
                                 return (
                                   <ContextMenu key={task._id}>
@@ -142,7 +145,7 @@ export default function SchedulingTool({ scheduleId }: SchedulingToolProps) {
                                       <div
                                         className="bg-blue-500 rounded-lg text-white text-xs p-2"
                                         style={{
-                                          height: `${taskHeight}%`,
+                                          height: taskHeight,
                                         }}
                                       >
                                         <div className="font-medium leading-tight overflow-hidden">

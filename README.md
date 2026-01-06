@@ -39,6 +39,19 @@ _Current stack:_
 - **Nuqs** - A state manager using URLSearchParams
 ---
 
+## 🤖 A.I. Usage
+
+I make use of A.I. tools during development, but always with clear boundaries.
+- If the underlying knowledge already exists
+- If the goal is to explore
+
+A.I. is **not** used as a substitute for understanding, originality, or decision-making.  
+It’s a tool for learning faster — not skipping the learning.
+
+*This section is included to remain transparent and ethical about A.I usage.*
+
+---
+
 ## 📦 Installation
 
 ```bash

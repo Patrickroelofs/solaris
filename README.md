@@ -33,7 +33,6 @@ The stack may change over time, and i'll probably replace parts of this stack ra
 
 _Current stack:_  
 - **React** - A javascript library, basically the standard in the industry at this point.
-- **PayloadCMS** - The content management system used as the backend for tasks, this may seem like an odd choice, but i've found it to be a really fun and easy to use CMS and I want to build more applications with it and learn it in-depth.
 - **Next.js** - The framework around React, there are many others like it but this one is most common and there's always more to learn.
 - **TailwindCSS** - A CSS framework, makes writing CSS easy. Little bit controversial but its ease-of-use makes it so I can focus on features.
 - **Nuqs** - A state manager using URLSearchParams

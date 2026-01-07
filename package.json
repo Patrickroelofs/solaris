@@ -1,0 +1,23 @@
+{
+  "name": "solaris",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "pnpm run infra && turbo run dev",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "infra": "docker compose up -d",
+    "infra:logs": "docker compose logs -f postgres",
+    "infra:down": "docker compose down -v",
+    "infra:restart": "docker compose restart postgres"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "turbo": "^2.7.3",
+    "typescript": "5.9.2"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  }
+}
